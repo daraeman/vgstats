@@ -2,7 +2,7 @@ const Image = require( "../model/Image" );
 const fs = require( "fs.promised" );
 const request = require( "request-promise-native" );
 
-const save_folder = "../data/images/";
+const save_folder = __dirname + "/../data/images/";
 
 const createPath = function( md5 ) {
 	return save_folder + md5;
