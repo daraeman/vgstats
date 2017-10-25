@@ -1,0 +1,13 @@
+processManagement:
+  fork: true
+systemLog:
+  destination: file
+  path: log/mongo.log
+  logAppend: true
+storage:
+  dbPath: data/database
+net:
+  bindIp: 127.0.0.1
+  port: 27017
+security:
+  authorization: enabled
