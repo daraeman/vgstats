@@ -7,6 +7,7 @@ const IapSchema = new Schema({
 	date: { type: Date },
 	amount: { type: Number },
 	image_id: { type: ObjectId },
+	enabled: { type: Boolean },
 	USD: { type: Number },
 	CNY: { type: Number },
 });
