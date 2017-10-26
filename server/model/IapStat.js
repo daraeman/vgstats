@@ -2,7 +2,7 @@ const mongoose = require( "mongoose" );
 const Schema = mongoose.Schema;
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
-const IapSchema = new Schema({
+const IapStatSchema = new Schema({
 	IapId: { type: ObjectId },
 	date: { type: Date },
 	amount: { type: Number },
@@ -12,4 +12,4 @@ const IapSchema = new Schema({
 	CNY: { type: Number },
 });
 
-module.exports = mongoose.model( "Iap", IapSchema );
+module.exports = mongoose.model( "IapStat", IapStatSchema );

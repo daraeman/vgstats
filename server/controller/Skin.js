@@ -1,24 +1,24 @@
-const Action = require( "../model/Action" );
-const Stat = require( "../model/Stat" )
+const Skin = require( "../model/Skin" );
+const Stat = require( "../model/Stat" );
 
 const getOrCreate = function( data ) {
 	return new Promise( ( resolve, reject) => {
-
-		Action.findOne( { action: data.action } )
-			.then( ( action ) => {
-				if ( ! action ) {
-					return Action.create({
-						action: data.action,
+		
+		Skin.findOne( { symbol: data.symbol } )
+			.then( ( hero ) => {
+				if ( ! hero ) {
+					return Skin.create({
+						symbol: data.symbol,
 					});
 				}
 				else {
-					return action;
+					return hero;
 				}
 			})
-			.then( ( action ) => {
-				if ( ! action )
-					throw new Error( "Action not returned after creating" );
-				return resolve( action );
+			.then( ( hero ) => {
+				if ( ! hero )
+					throw new Error( "Skin not returned after creating" );
+				return resolve( hero );
 			})
 			.catch( ( error ) => {
 				return reject( error );
@@ -30,17 +30,17 @@ const createStat = function( data ) {
 	return new Promise( ( resolve, reject) => {
 
 		getOrCreate( data )
-			.then( ( action ) => {
+			.then( ( skin ) => {
 
 				let remaining = data.SKUs.length;
 				data.SKUs.forEach( ( sku ) => {
-					
+
 					let stat = new Stat({
 						id: sku.id,
 						currency: Object.keys( sku.price )[0],
 						date: new Date(),
 						amount: sku.price[ Object.keys( sku.price )[0] ],
-						action_id: action._id,
+						skin_id: skin._id,
 					});
 
 					stat.save()
@@ -50,6 +50,7 @@ const createStat = function( data ) {
 						});
 
 				});
+
 			})
 			.catch( ( error ) => {
 				return reject( error );

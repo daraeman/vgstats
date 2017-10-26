@@ -1,5 +1,4 @@
 const mongoose = require( "mongoose" );
-require( "dotenv" ).config();
 
 const connect = function( db_name ) {
 
@@ -18,7 +17,7 @@ const connect = function( db_name ) {
 				auth: {
 					authdb: db_name
 				}
-			}
+			};
 		}
 
 		mongoose.connect( db_url, connection_params )

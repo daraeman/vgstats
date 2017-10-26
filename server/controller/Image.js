@@ -1,14 +1,16 @@
 const Image = require( "../model/Image" );
 const fs = require( "fs.promised" );
 const crypto = require( "crypto" );
+const request = require( "request-promise-native" );
 
+const url_domain = "gamefeeds.superevilmegacorp.net";
 const save_folder = __dirname + "/../data/images/";
 
 function createPath( hash ) {
 	return save_folder + hash;
-};
+}
 
-const fetch = function( image ) {
+const retrieve = function( image ) {
 	return new Promise( ( resolve, reject ) => {
 
 		request( image.url )
@@ -36,17 +38,17 @@ function existsDB( name ) {
 	return Image.findOne( { name: name } );
 }
 
-function existsFile( hash ) {
-	return new Promise( ( resolve, reject ) => {
+const existsFile = function( hash ) {
+	return new Promise( ( resolve ) => {
 		fs.access( createPath( hash ), fs.constants.R_OK )
 			.then( () => {
 				return resolve( true );
 			})
-			.catch( ( error ) => {
+			.catch( () => {
 				return resolve( false );
-			})
+			});
 	});
-}
+};
 
 const getOrCreate = function( type, name ) {
 	return new Promise( ( resolve, reject) => {
@@ -82,11 +84,12 @@ function createUrl( type, name ) {
 		type === "bundle" ||
 		type === "skin"
 	) {
-		return "/market/current/" + name;
+		return url_domain + "/market/current/" + name;
 	}
 }
 
 module.exports = {
-	fetch: fetch,
+	retrieve: retrieve,
 	getOrCreate: getOrCreate,
+	existsFile: existsFile,
 };

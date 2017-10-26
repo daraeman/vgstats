@@ -1,11 +1,12 @@
 const Hero = require( "../model/Hero" );
 const Stat = require( "../model/Stat" );
-const request = require( "request-promise-native" );
+const ImageController = require( "./Image" );
+const VideoController = require( "./Video" );
 
 const getOrCreate = function( data ) {
 	return new Promise( ( resolve, reject) => {
 		
-		Hero.findOne( { title: data.symbol } )
+		Hero.findOne( { title: data.title } )
 			.then( ( hero ) => {
 				if ( ! hero ) {
 					return Hero.create({
@@ -23,7 +24,7 @@ const getOrCreate = function( data ) {
 					throw new Error( "Hero not returned after creating" );
 
 				ImageController.getOrCreate( "hero", data.image )
-					.then( ( this_image ) => {
+					.then( ( image ) => {
 
 						if ( ! image )
 							throw new Error( "Failed to getOrCreate Image [%s]", data.image );
@@ -33,20 +34,18 @@ const getOrCreate = function( data ) {
 						if ( ! data.video )
 							return null;
 
-						return VideoController.getOrCreate( data.video )
+						return VideoController.getOrCreate( data.video );
 					})
 					.then( ( video ) => {
 
-						hero.video = video._id;
-
-						if ( ! video && data.video )
-							throw new Error( "Failed to get Video [%s]", data.video );
+						if ( video && video._id )
+							hero.video = video._id;
 
 						return hero.save();
 					})
 					.then( ( hero ) => {
 						return resolve( hero );
-					})
+					});
 			})
 			.catch( ( error ) => {
 				return reject( error );

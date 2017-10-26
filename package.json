@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "setup": "node server/setup.js",
-    "start_stats": "node server/daemons/update_stats.js",
+    "start_stats": "node server/daemon/update_stats.js",
     "start_database": "if [ -z $(pidof mongod) ]; then mongod --config mongo.conf; else echo 'Mongod is already running'; fi;",
     "stop_database": "if [ ! -z $(pidof mongod) ]; then kill $(pidof mongod); else echo 'Mongod was not running'; fi;"
   },
@@ -19,6 +19,7 @@
     "fs.promised": "^3.0.0",
     "mongoose": "^4.12.4",
     "react": "^16.0.0",
+    "request": "^2.83.0",
     "request-promise-native": "^1.0.5"
   },
   "devDependencies": {

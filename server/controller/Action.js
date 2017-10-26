@@ -1,25 +1,24 @@
-const Boost = require( "../model/Boost" );
-const Stat = require( "../model/Stat" )
+const Action = require( "../model/Action" );
+const Stat = require( "../model/Stat" );
 
 const getOrCreate = function( data ) {
 	return new Promise( ( resolve, reject) => {
-		
-		Boost.findOne( { title: data.title } )
-			.then( ( boost ) => {
-				if ( ! boost ) {
-					return Boost.create({
-						title: data.title,
-						giftable: data.giftable,
+
+		Action.findOne( { action: data.action } )
+			.then( ( action ) => {
+				if ( ! action ) {
+					return Action.create({
+						action: data.action,
 					});
 				}
 				else {
-					return boost;
+					return action;
 				}
 			})
-			.then( ( boost ) => {
-				if ( ! boost )
-					throw new Error( "Boost not returned after creating" );
-				return resolve( boost );
+			.then( ( action ) => {
+				if ( ! action )
+					throw new Error( "Action not returned after creating" );
+				return resolve( action );
 			})
 			.catch( ( error ) => {
 				return reject( error );
@@ -31,17 +30,17 @@ const createStat = function( data ) {
 	return new Promise( ( resolve, reject) => {
 
 		getOrCreate( data )
-			.then( ( boost ) => {
+			.then( ( action ) => {
 
 				let remaining = data.SKUs.length;
 				data.SKUs.forEach( ( sku ) => {
-
+					
 					let stat = new Stat({
 						id: sku.id,
 						currency: Object.keys( sku.price )[0],
 						date: new Date(),
 						amount: sku.price[ Object.keys( sku.price )[0] ],
-						boost_id: boost._id,
+						action_id: action._id,
 					});
 
 					stat.save()

@@ -1,24 +1,24 @@
-const Skin = require( "../model/Skin" );
+const Boost = require( "../model/Boost" );
 const Stat = require( "../model/Stat" );
-
 const getOrCreate = function( data ) {
 	return new Promise( ( resolve, reject) => {
 		
-		Skin.findOne( { title: data.symbol } )
-			.then( ( hero ) => {
-				if ( ! hero ) {
-					return Skin.create({
-						symbol: data.symbol,
+		Boost.findOne( { title: data.title } )
+			.then( ( boost ) => {
+				if ( ! boost ) {
+					return Boost.create({
+						title: data.title,
+						giftable: data.giftable,
 					});
 				}
 				else {
-					return hero;
+					return boost;
 				}
 			})
-			.then( ( hero ) => {
-				if ( ! hero )
-					throw new Error( "Skin not returned after creating" );
-				return resolve( hero );
+			.then( ( boost ) => {
+				if ( ! boost )
+					throw new Error( "Boost not returned after creating" );
+				return resolve( boost );
 			})
 			.catch( ( error ) => {
 				return reject( error );
@@ -30,7 +30,7 @@ const createStat = function( data ) {
 	return new Promise( ( resolve, reject) => {
 
 		getOrCreate( data )
-			.then( ( skin ) => {
+			.then( ( boost ) => {
 
 				let remaining = data.SKUs.length;
 				data.SKUs.forEach( ( sku ) => {
@@ -40,7 +40,7 @@ const createStat = function( data ) {
 						currency: Object.keys( sku.price )[0],
 						date: new Date(),
 						amount: sku.price[ Object.keys( sku.price )[0] ],
-						skin_id: skin._id,
+						boost_id: boost._id,
 					});
 
 					stat.save()
@@ -50,7 +50,6 @@ const createStat = function( data ) {
 						});
 
 				});
-
 			})
 			.catch( ( error ) => {
 				return reject( error );

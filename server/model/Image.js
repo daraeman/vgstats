@@ -1,13 +1,13 @@
 const mongoose = require( "mongoose" );
 const Schema = mongoose.Schema;
-const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const ImageSchema = new Schema({
 	name: { type: String },
-	md5: { type: String },
+	sha256: { type: String },
 	url: { type: String },
 	fetched: { type: Date, default: null },
-	error: { type: String, default: null }
+	error: { type: String, default: null },
+	previous: { type: Array },
 });
 
 module.exports = mongoose.model( "Image", ImageSchema );

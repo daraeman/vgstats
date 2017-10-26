@@ -1,8 +1,7 @@
 const mongoose = require( "mongoose" );
 const Schema = mongoose.Schema;
-const ObjectId = mongoose.Schema.Types.ObjectId;
 
-const BoostSchema = new Schema({
+const HeroSchema = new Schema({
 	title: { type: String },
 	symbol: { type: String },
 	lore: { type: String },
@@ -10,4 +9,4 @@ const BoostSchema = new Schema({
 	vgf: { type: String },
 });
 
-module.exports = mongoose.model( "Boost", BoostSchema );
+module.exports = mongoose.model( "Hero", HeroSchema );

@@ -1,15 +1,16 @@
 const Iap = require( "../model/Iap" );
-const IapStat = require( "../model/IapStat" )
+const IapStat = require( "../model/IapStat" );
 const ImageController = require( "../controller/Image" );
 
-const getOrCreate = function( iap ) {
-	return new Promise( ( resolve, reject) => {
-		Iap.findOne( { id: iap.productID } )
+const getOrCreate = function( data ) {
+	return new Promise( ( resolve, reject ) => {
+
+		Iap.findOne( { id: data.productID } )
 			.then( ( iap ) => {
 				if ( ! iap ) {
 					return Iap.create({
-						type: iap.type
-						id: iap.productID
+						type: data.type,
+						id: data.productID,
 					});
 				}
 				else {

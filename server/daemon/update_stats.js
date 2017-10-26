@@ -1,14 +1,12 @@
 const fs = require( "fs.promised" );
-const db = require( "../controller/db" );
-const Action = require( "../model/Action" );
-const Boost = require( "../model/Boost" );
-const Bundle = require( "../model/Bundle" );
-const Hero = require( "../model/Hero" );
-const Iap = require( "../model/Iap" );
-const IapStat = require( "../model/IapStat" );
-const ImageController = require( "../controller/Image" );
-const Skin = require( "../model/Skin" );
-const Stat = require( "../model/Stat" );
+const db = require( __dirname + "/../controller/db" );
+const ActionController = require( __dirname + "/../controller/Action" );
+const BoostController = require( __dirname + "/../controller/Boost" );
+const BundleController = require( __dirname + "/../controller/Bundle" );
+const HeroController = require( __dirname + "/../controller/Hero" );
+const IapController = require( __dirname + "/../controller/Iap" );
+const SkinController = require( __dirname + "/../controller/Skin" );
+require( "dotenv" ).config( __dirname + "/../../.env" );
 
 const path = __dirname + "/../data/marketfeed/na/en/1508905823.json";
 
@@ -17,6 +15,7 @@ db.connect()
 		fs.readFile( path )
 			.then( ( json ) => {
 				let data = JSON.parse( json );
+				let remaining = data.items.length;
 				for ( let item of data.items ) {
 					if ( item.category === "iap" )
 						IapController.createStat( item );

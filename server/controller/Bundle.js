@@ -1,10 +1,10 @@
 const Bundle = require( "../model/Bundle" );
-const Stat = require( "../model/Stat" )
+const Stat = require( "../model/Stat" );
 
 const getOrCreate = function( data ) {
 	return new Promise( ( resolve, reject) => {
 		
-		Bundle.findOne( { title: data.symbol } )
+		Bundle.findOne( { symbol: data.symbol } )
 			.then( ( bundle ) => {
 				if ( ! bundle ) {
 					return Bundle.create({
@@ -32,10 +32,10 @@ const createStat = function( data ) {
 		getOrCreate( data )
 			.then( ( bundle ) => {
 
-				let reamining = data.SKUs.length;
+				let remaining = data.SKUs.length;
 				data.SKUs.forEach( ( sku ) => {
 
-					let stat = Stat.create({
+					let stat = new Stat({
 						id: sku.id,
 						currency: Object.keys( sku.price )[0],
 						date: new Date(),
