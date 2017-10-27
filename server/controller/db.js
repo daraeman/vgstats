@@ -1,4 +1,5 @@
 const mongoose = require( "mongoose" );
+mongoose.Promise = global.Promise;
 
 const connect = function( db_name ) {
 
@@ -7,7 +8,9 @@ const connect = function( db_name ) {
 
 	return new Promise( ( resolve, reject ) => {
 
-		let connection_params = {};
+		let connection_params = {
+			useMongoClient: true,
+		};
 
 		// if database needs authentication
 		if ( process.env.DB_USER && process.env.DB_PASSWORD ) {
