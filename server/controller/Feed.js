@@ -2,32 +2,29 @@ const Feed = require( "../model/Feed" );
 const fs = require( "fs.promised" );
 const request = require( "request-promise-native" );
 
-const market_feed_url = "http://gamefeeds.superevilmegacorp.net/market/current/marketfeed.iOS.na.en.json";
-const market_feed_path = __dirname + "/../data/marketfeed/iOS/na/en/";
-
-function createSavePath( filename ) {
-	return save_folder + hash;
+function createSavePath( path ) {
+	return  __dirname + "/" + path + "/" + +new Date() + ".json";
 }
 
-const retrieveFeed = function( video ) {
+const retrieveFeed = function( feed ) {
 	return new Promise( ( resolve, reject ) => {
 
-		request( video.url )
+		request( feed.url )
 			.then( ( body ) => {
-				let sha256 = crypto.createHash( "sha256" ).update( body ).digest( "hex" );
-				video.sha256 = sha256;
-				return fs.writeFile( createPath( sha256 ), body );
+				return fs.writeFile( createSavePath( feed.path ), body );
 			})
 			.then( () => {
-				video.fetched = new Date();
-				return video.save();
+				feed.fetched = new Date();
+				feed.error = false;
+				return feed.save();
 			})
 			.then( () => {
 				return resolve();
 			})
 			.catch( ( error ) => {
-				video.error = JSON.stringify( error );
-				video.save();
+				feed.error = true;
+				feed.fetch_errors.push( { date: new Date(), error: error } );
+				feed.save();
 				return reject( error );
 			});
 	});
@@ -45,7 +42,7 @@ const getAll = function() {
 	return Feed.find( {} );
 };
 
-const add = function( url, language, region, platform, interval, enabled ) {
+const add = function( url, language, region, platform, interval, enabled, path ) {
 	return new Promise( ( resolve, reject ) => {
 		Feed.findOne({ url: url })
 			.then( ( feed ) => {
@@ -60,6 +57,7 @@ const add = function( url, language, region, platform, interval, enabled ) {
 						platform: platform,
 						interval: interval,
 						enabled: enabled,
+						path: path,
 					})
 					.then( ( feed ) => {
 						if ( feed )
@@ -75,7 +73,7 @@ const add = function( url, language, region, platform, interval, enabled ) {
 	});
 };
 
-const update = function( url, language, region, platform, interval, enabled ) {
+const update = function( url, language, region, platform, interval, enabled, path ) {
 	return new Promise( ( resolve, reject ) => {
 		Feed.findOne({ url: url })
 			.then( ( feed ) => {
@@ -92,6 +90,8 @@ const update = function( url, language, region, platform, interval, enabled ) {
 					feed.platform = platform;
 				if ( interval )
 					feed.interval = interval;
+				if ( path )
+					feed.path = path;
 				if ( typeof enabled !== "undefined" )
 					feed.interval = interval;
 				feed.save()
@@ -114,7 +114,7 @@ const remove = function( url ) {
 					return reject( "Failed to find feed" );
 
 				feed.remove()
-					.then( ( feed ) => {
+					.then( () => {
 						return resolve();
 					});
 
@@ -135,7 +135,7 @@ const disable = function( url ) {
 
 				feed.enabled = 0;
 				feed.save()
-					.then( ( feed ) => {
+					.then( () => {
 						return resolve();
 					});
 
@@ -156,7 +156,7 @@ const enable = function( url ) {
 
 				feed.enabled = 1;
 				feed.save()
-					.then( ( feed ) => {
+					.then( () => {
 						return resolve();
 					});
 

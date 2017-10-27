@@ -14,8 +14,8 @@ function command( message ) {
 		console.log( "Feed Manager" );
 		console.log( "Commands:" );
 		console.log( " - list" );
-		console.log( " - add URL LANGUAGE REGION PLATFORM INTERVAL ENABLED" );
-		console.log( " - update URL LANGUAGE REGION PLATFORM INTERVAL ENABLED" );
+		console.log( " - add URL LANGUAGE REGION PLATFORM INTERVAL ENABLED PATH" );
+		console.log( " - update URL LANGUAGE REGION PLATFORM INTERVAL ENABLED PATH" );
 		console.log( " - delete URL" );
 		console.log( " - disable URL" );
 		console.log( " - enable URL" );
@@ -27,7 +27,16 @@ function command( message ) {
 			FeedController.getAll()
 				.then( ( feeds ) => {
 					feeds.forEach( ( feed ) => {
-						console.log( feed.url +" | "+ feed.language +" | "+ feed.region +" | "+ feed.platform +" | "+ feed.interval +" | "+ feed.enabled );
+						let parts = [
+							feed.url,
+							feed.language,
+							feed.region,
+							feed.platform,
+							feed.interval,
+							feed.enabled,
+							feed.path,
+						];
+						console.log( parts.join( " " ) );
 					});
 					command();
 				});
@@ -35,7 +44,7 @@ function command( message ) {
 		else if ( /^add/.test( answer ) ) {
 			let parts = answer.split( " " );
 			if ( parts.length < 2 || ! parts[1] ) {
-				command( "Invalid parameters: 'add URL LANGUAGE REGION PLATFORM INTERVAL ENABLED'" );
+				command( "Invalid parameters: 'add URL LANGUAGE REGION PLATFORM INTERVAL ENABLED PATH'" );
 				return;
 			}
 			let url = parts[1];
@@ -43,8 +52,9 @@ function command( message ) {
 			let region = parts[3];
 			let platform = parts[4];
 			let interval = parts[5];
-			let enabled = parts[5];
-			FeedController.add( url, language, region, platform, interval, enabled )
+			let enabled = parts[6];
+			let path = parts[7];
+			FeedController.add( url, language, region, platform, interval, enabled, path )
 				.then( ( feed ) => {
 					console.log( "Feed added: ", feed );
 					command();
@@ -53,7 +63,7 @@ function command( message ) {
 		else if ( /^update/.test( answer ) ) {
 			let parts = answer.split( " " );
 			if ( parts.length < 2 || ! parts[1] ) {
-				command( "Invalid parameters: 'update URL LANGUAGE REGION PLATFORM INTERVAL ENABLED'" );
+				command( "Invalid parameters: 'update URL LANGUAGE REGION PLATFORM INTERVAL ENABLED PATH'" );
 				return;
 			}
 			let url = parts[1];
@@ -61,8 +71,9 @@ function command( message ) {
 			let region = parts[3];
 			let platform = parts[4];
 			let interval = parts[5];
-			let enabled = parts[5];
-			FeedController.update( url, language, region, platform, interval, enabled )
+			let enabled = parts[6];
+			let path = parts[7];
+			FeedController.update( url, language, region, platform, interval, enabled, path )
 				.then( ( feed ) => {
 					console.log( "Feed updated: ", feed );
 					command();

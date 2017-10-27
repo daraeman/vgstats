@@ -6,9 +6,12 @@ const FeedSchema = new Schema({
 	language: { type: String },
 	region: { type: String },
 	platform: { type: String },
-	last_fetched: { type: Date },
+	fetched: { type: Date },
 	interval: { type: Number }, // seconds
-	enabled: { type: Boolean }
+	enabled: { type: Boolean },
+	path: { type: String }, // for saving the raw json files
+	error: { type: Boolean, default: false },
+	fetch_errors: { type: Array, default: [] },
 });
 
 module.exports = mongoose.model( "Feed", FeedSchema );
