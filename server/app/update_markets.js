@@ -13,85 +13,105 @@ let queue = new Queue({
 	autoStart: true,
 	concurrency: 1,
 });
+const Utils = require( __dirname + "/../controller/Utils" );
+const log_path = __dirname + "/../../log/update_markets";
+let logStream = Utils.openLog( log_path );
+function log( msg ) {
+	logStream.write( msg + "\n" );
+}
 
-db.connect()
-	.then( () => {
-		return FeedController.getFeedToFetchAll( "market" );
-	})
-	.then( ( feeds ) => {
+process.on( "uncaughtException", ( error ) => {
+    log( error.stack );
+});
 
-		if ( ! feeds || ! feeds.length )
-			throw new PromiseEndError( "Nothing to fetch" );
 
-		let feed_jobs = [];
-		feeds.forEach( ( feed ) => {
-			feed_jobs.push( queue.pushTask( ( resolve ) => {
-				FeedController.retrieveFeed( feed )
-					.then( ( json ) => {
-						feed.json = json;
-						resolve();
-					});
-			}) );
-		});
+const fetch_delay = ( 1000 * 60 ); // 60 seconds
 
-		Promise.all( feed_jobs ).then( () => {
-			console.log( "a" );
+function callback() {
 
-			let items_remaining = 0;
-			feeds.forEach( ( feed ) => {
+	return new Promise( ( resolve, reject ) => {
 
-				let data;
-				try {
-					data = JSON.parse( feed.json );
-				} catch ( error ) {
-					throw error; // log error here and continue
-				}
+		FeedController.getFeedToFetchAll( "market" )
+			.then( ( feeds ) => {
 
-				items_remaining += data.items.length;
-				let temp_items = JSON.parse( JSON.stringify( data.items ) );
-				data.items.forEach( ( item, index ) => {
+				if ( ! feeds || ! feeds.length )
+					throw new PromiseEndError( "Nothing to fetch" );
 
-					let item_promise;
-
-					if ( item.category === "iap" )
-						item_promise = IapController.createStat;
-					else if ( item.category === "boost" )
-						item_promise = BoostController.createStat;
-					else if ( item.category === "hero" )
-						item_promise = HeroController.createStat;
-					else if ( item.category === "socialActions" )
-						item_promise = ActionController.createStat;
-					else if ( item.category === "bundle" )
-						item_promise = BundleController.createStat;
-					else if ( item.category === "skin" )
-						item_promise = SkinController.createStat;
-					else {
-						console.log( "Unknown item", JSON.stringify( item ) );
-						return;
-						//throw new Error( "unrecognized item >> ", JSON.stringify( item ) ); // log error here and continue
-					}
-
-					item_promise( item, feed )
-						.then( () => {
-							console.log( "b 2 [%s]", ( --items_remaining - 1 ) );
-							temp_items.splice( index, 1 );
-							if ( items_remaining < 58 )
-								console.log( temp_items )
-							if ( --items_remaining === 0 )
-								db.close();
-						})
-						.catch( ( error ) => {
-							throw error;
-						});
+				let feed_jobs = [];
+				feeds.forEach( ( feed ) => {
+					feed_jobs.push( queue.pushTask( ( resolve ) => {
+						FeedController.retrieveFeed( feed )
+							.then( ( json ) => {
+								feed.json = json;
+								resolve();
+							});
+					}) );
 				});
 
-			});
-		});
+				Promise.all( feed_jobs ).then( () => {
 
+					let items_remaining = 0;
+					feeds.forEach( ( feed ) => {
+
+						let data;
+						try {
+							data = JSON.parse( feed.json );
+						} catch ( error ) {
+							throw error; // log error here and continue
+						}
+
+						items_remaining += data.items.length;
+						data.items.forEach( ( item ) => {
+
+							let item_promise;
+
+							if ( item.category === "iap" )
+								item_promise = IapController.createStat;
+							else if ( item.category === "boost" )
+								item_promise = BoostController.createStat;
+							else if ( item.category === "hero" )
+								item_promise = HeroController.createStat;
+							else if ( item.category === "socialActions" )
+								item_promise = ActionController.createStat;
+							else if ( item.category === "bundle" )
+								item_promise = BundleController.createStat;
+							else if ( item.category === "skin" )
+								item_promise = SkinController.createStat;
+							else {
+								log( "Unknown item", JSON.stringify( item ) );
+								return;
+								//throw new Error( "unrecognized item >> ", JSON.stringify( item ) ); // log error here and continue
+							}
+
+							item_promise( item, feed )
+								.then( () => {
+									if ( --items_remaining === 0 )
+										db.close();
+								})
+								.catch( ( error ) => {
+									throw error;
+								});
+						});
+
+					});
+				});
+			})
+			.catch( ( error ) => {
+				if ( ! ( error instanceof PromiseEndError ) )
+					reject( error );
+				log( error );
+				resolve();
+			});
+	});
+
+}
+
+db.connect()
+	.then(() => {
+		log( "DB connected, starting" );
+		Utils.loop( callback, fetch_delay );
 	})
 	.catch( ( error ) => {
-		if ( ! ( error instanceof PromiseEndError ) )
-			throw error;
-		console.log( "Nothing to Fetch" );
+		log( error );
 		db.close();
 	});
