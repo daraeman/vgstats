@@ -38,6 +38,8 @@ function callback() {
 				if ( ! feeds || ! feeds.length )
 					throw new PromiseEndError( "Nothing to fetch" );
 
+				log( "["+ feeds.length +"] feeds found to fetch" );
+
 				let feed_jobs = [];
 				feeds.forEach( ( feed ) => {
 					feed_jobs.push( queue.pushTask( ( resolve ) => {
