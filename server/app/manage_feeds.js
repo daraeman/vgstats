@@ -52,7 +52,7 @@ function command( message ) {
 			let region = parts[3];
 			let platform = parts[4];
 			let type = parts[5];
-			let enabled = parts[7];
+			let enabled = parts[6];
 			let path = parts[7];
 			FeedController.add( url, language, region, platform, type, enabled, path )
 				.then( ( feed ) => {

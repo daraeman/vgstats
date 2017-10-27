@@ -1,11 +1,12 @@
 const Feed = require( "../model/Feed" );
 const fs = require( "fs.promised" );
 const request = require( "request-promise-native" );
+const mkdirp = require( "mkdirp-promise" );
 
 const feed_interval = 20; // minutes
 
 function createSavePath( path ) {
-	return  __dirname + "/../" + path + "/" + +new Date() + ".json";
+	return  __dirname + "/../" + path;
 }
 
 const retrieveFeed = function( feed ) {
@@ -15,7 +16,7 @@ const retrieveFeed = function( feed ) {
 		request( feed.url )
 			.then( ( body ) => {
 				json = body;
-				return fs.writeFile( createSavePath( feed.path ), body );
+				return fs.writeFile( createSavePath( feed.path ) + "/" + +new Date() + ".json", body );
 			})
 			.then( () => {
 				feed.fetched = new Date();
@@ -56,7 +57,7 @@ const getAll = function() {
 	return Feed.find( {} );
 };
 
-const add = function( url, language, region, platform, type, interval, enabled, path ) {
+const add = function( url, language, region, platform, type, enabled, path ) {
 	return new Promise( ( resolve, reject ) => {
 		Feed.findOne({ url: url })
 			.then( ( feed ) => {
@@ -64,21 +65,24 @@ const add = function( url, language, region, platform, type, interval, enabled, 
 				if ( feed )
 					return resolve( feed );
 
+				let this_feed;
 				Feed.create({
 						url: url,
 						language: language,
 						region: region,
 						platform: platform,
 						type: type,
-						interval: interval,
 						enabled: enabled,
 						path: path,
 					})
 					.then( ( feed ) => {
-						if ( feed )
-							return resolve( feed );
-						else
-							return reject( "Failed to create Feed" );
+						if ( ! feed )
+							throw new Error( "Failed to create Feed" );
+						this_feed = feed;
+						return mkdirp( createSavePath( path ) );
+					})
+					.then( () => {
+						return resolve( this_feed );
 					});
 
 			})
@@ -88,7 +92,7 @@ const add = function( url, language, region, platform, type, interval, enabled, 
 	});
 };
 
-const update = function( url, language, region, platform, type, interval, enabled, path ) {
+const update = function( url, language, region, platform, type, enabled, path ) {
 	return new Promise( ( resolve, reject ) => {
 		Feed.findOne({ url: url })
 			.then( ( feed ) => {
@@ -96,7 +100,6 @@ const update = function( url, language, region, platform, type, interval, enable
 				if ( ! feed )
 					return reject( "Failed to find feed" );
 
-				feed.interval = interval;
 				if ( language )
 					feed.language = language;
 				if ( region )
@@ -105,12 +108,8 @@ const update = function( url, language, region, platform, type, interval, enable
 					feed.platform = platform;
 				if ( type )
 					feed.type = type;
-				if ( interval )
-					feed.interval = interval;
 				if ( path )
 					feed.path = path;
-				if ( typeof enabled !== "undefined" )
-					feed.interval = interval;
 				feed.save()
 					.then( ( feed ) => {
 						return resolve( feed );

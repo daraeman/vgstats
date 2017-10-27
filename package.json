@@ -17,6 +17,7 @@
     "dotenv": "^4.0.0",
     "express": "^4.16.2",
     "fs.promised": "^3.0.0",
+    "mkdirp-promise": "^5.0.1",
     "mongoose": "^4.12.4",
     "react": "^16.0.0",
     "request": "^2.83.0",
