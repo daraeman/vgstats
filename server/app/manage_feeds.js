@@ -14,8 +14,8 @@ function command( message ) {
 		console.log( "Feed Manager" );
 		console.log( "Commands:" );
 		console.log( " - list" );
-		console.log( " - add URL LANGUAGE REGION PLATFORM INTERVAL ENABLED PATH" );
-		console.log( " - update URL LANGUAGE REGION PLATFORM INTERVAL ENABLED PATH" );
+		console.log( " - add URL LANGUAGE REGION PLATFORM TYPE INTERVAL ENABLED PATH" );
+		console.log( " - update URL LANGUAGE REGION PLATFORM TYPE INTERVAL ENABLED PATH" );
 		console.log( " - delete URL" );
 		console.log( " - disable URL" );
 		console.log( " - enable URL" );
@@ -23,7 +23,7 @@ function command( message ) {
 	}
 	message = message || "Enter Command: ";
 	rl.question( message, ( answer ) => {
-		if ( answer === "list" ) {
+		if ( answer === "list" || answer === "ls" ) {
 			FeedController.getAll()
 				.then( ( feeds ) => {
 					feeds.forEach( ( feed ) => {
@@ -32,6 +32,7 @@ function command( message ) {
 							feed.language,
 							feed.region,
 							feed.platform,
+							feed.type,
 							feed.interval,
 							feed.enabled,
 							feed.path,
@@ -44,17 +45,18 @@ function command( message ) {
 		else if ( /^add/.test( answer ) ) {
 			let parts = answer.split( " " );
 			if ( parts.length < 2 || ! parts[1] ) {
-				command( "Invalid parameters: 'add URL LANGUAGE REGION PLATFORM INTERVAL ENABLED PATH'" );
+				command( "Invalid parameters: 'add URL LANGUAGE REGION PLATFORM TYPE INTERVAL ENABLED PATH'" );
 				return;
 			}
 			let url = parts[1];
 			let language = parts[2];
 			let region = parts[3];
 			let platform = parts[4];
-			let interval = parts[5];
-			let enabled = parts[6];
-			let path = parts[7];
-			FeedController.add( url, language, region, platform, interval, enabled, path )
+			let type = parts[5];
+			let interval = parts[6];
+			let enabled = parts[7];
+			let path = parts[8];
+			FeedController.add( url, language, region, platform, type, interval, enabled, path )
 				.then( ( feed ) => {
 					console.log( "Feed added: ", feed );
 					command();
@@ -63,23 +65,24 @@ function command( message ) {
 		else if ( /^update/.test( answer ) ) {
 			let parts = answer.split( " " );
 			if ( parts.length < 2 || ! parts[1] ) {
-				command( "Invalid parameters: 'update URL LANGUAGE REGION PLATFORM INTERVAL ENABLED PATH'" );
+				command( "Invalid parameters: 'update URL LANGUAGE REGION PLATFORM TYPE INTERVAL ENABLED PATH'" );
 				return;
 			}
 			let url = parts[1];
 			let language = parts[2];
 			let region = parts[3];
 			let platform = parts[4];
-			let interval = parts[5];
-			let enabled = parts[6];
-			let path = parts[7];
-			FeedController.update( url, language, region, platform, interval, enabled, path )
+			let type = parts[5];
+			let interval = parts[6];
+			let enabled = parts[7];
+			let path = parts[8];
+			FeedController.update( url, language, region, platform, type, interval, enabled, path )
 				.then( ( feed ) => {
 					console.log( "Feed updated: ", feed );
 					command();
 				});
 		}
-		else if ( /^delete/.test( answer ) ) {
+		else if ( /^delete|rm/.test( answer ) ) {
 			let parts = answer.split( " " );
 			if ( parts.length < 1 || ! parts[1] ) {
 				command( "Invalid parameters: 'remove URL'" );
@@ -118,10 +121,13 @@ function command( message ) {
 					command();
 				});
 		}
+		else if ( answer === "exit" )  {
+			rl.close();
+			db.close();
+		}
 		else  {
 			command( "help" );
 		}
-		//rl.close();
 	});
 }
 

@@ -3,14 +3,16 @@ const fs = require( "fs.promised" );
 const request = require( "request-promise-native" );
 
 function createSavePath( path ) {
-	return  __dirname + "/" + path + "/" + +new Date() + ".json";
+	return  __dirname + "/../" + path + "/" + +new Date() + ".json";
 }
 
 const retrieveFeed = function( feed ) {
 	return new Promise( ( resolve, reject ) => {
 
+		let json;
 		request( feed.url )
 			.then( ( body ) => {
+				json = body;
 				return fs.writeFile( createSavePath( feed.path ), body );
 			})
 			.then( () => {
@@ -19,7 +21,7 @@ const retrieveFeed = function( feed ) {
 				return feed.save();
 			})
 			.then( () => {
-				return resolve();
+				return resolve( json );
 			})
 			.catch( ( error ) => {
 				feed.error = true;
@@ -30,8 +32,16 @@ const retrieveFeed = function( feed ) {
 	});
 };
 
-const getFeedToFetch = function() {
-	return Feed.findOne( { $where: function() {
+const getFeedToFetch = function( type ) {
+	return Feed.findOne( { type: type }, { $where: function() {
+		let date = new Date();
+		date.setSeconds( date.getSeconds() - this.fetch_interval );
+		return this.last_fetched <= date;
+	}});
+};
+
+const getFeedToFetchAll = function( type ) {
+	return Feed.find( { type: type }, { $where: function() {
 		let date = new Date();
 		date.setSeconds( date.getSeconds() - this.fetch_interval );
 		return this.last_fetched <= date;
@@ -42,7 +52,7 @@ const getAll = function() {
 	return Feed.find( {} );
 };
 
-const add = function( url, language, region, platform, interval, enabled, path ) {
+const add = function( url, language, region, platform, type, interval, enabled, path ) {
 	return new Promise( ( resolve, reject ) => {
 		Feed.findOne({ url: url })
 			.then( ( feed ) => {
@@ -55,6 +65,7 @@ const add = function( url, language, region, platform, interval, enabled, path )
 						language: language,
 						region: region,
 						platform: platform,
+						type: type,
 						interval: interval,
 						enabled: enabled,
 						path: path,
@@ -73,7 +84,7 @@ const add = function( url, language, region, platform, interval, enabled, path )
 	});
 };
 
-const update = function( url, language, region, platform, interval, enabled, path ) {
+const update = function( url, language, region, platform, type, interval, enabled, path ) {
 	return new Promise( ( resolve, reject ) => {
 		Feed.findOne({ url: url })
 			.then( ( feed ) => {
@@ -88,6 +99,8 @@ const update = function( url, language, region, platform, interval, enabled, pat
 					feed.region = region;
 				if ( platform )
 					feed.platform = platform;
+				if ( type )
+					feed.type = type;
 				if ( interval )
 					feed.interval = interval;
 				if ( path )
@@ -167,11 +180,10 @@ const enable = function( url ) {
 	});
 };
 
-
-
 module.exports = {
 	retrieveFeed: retrieveFeed,
 	getFeedToFetch: getFeedToFetch,
+	getFeedToFetchAll: getFeedToFetchAll,
 	getAll: getAll,
 	add: add,
 	update: update,

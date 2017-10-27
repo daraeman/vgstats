@@ -14,6 +14,7 @@ const StatSchema = new Schema({
 	action_id: { type: ObjectId },
 	boost_id: { type: ObjectId },
 	bundle_id: { type: ObjectId },
+	feed_id: { type: ObjectId },
 });
 
 module.exports = mongoose.model( "Stat", StatSchema );

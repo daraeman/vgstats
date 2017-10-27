@@ -26,7 +26,7 @@ const getOrCreate = function( data ) {
 	});
 };
 
-const createStat = function( data ) {
+const createStat = function( data, feed ) {
 	return new Promise( ( resolve, reject) => {
 
 		getOrCreate( data )
@@ -41,6 +41,7 @@ const createStat = function( data ) {
 						date: new Date(),
 						amount: sku.price[ Object.keys( sku.price )[0] ],
 						skin_id: skin._id,
+						feed_id: feed._id,
 					});
 
 					stat.save()

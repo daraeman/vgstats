@@ -28,7 +28,7 @@ const getOrCreate = function( data ) {
 	});
 };
 
-const createStat = function( data ) {
+const createStat = function( data, feed ) {
 	return new Promise( ( resolve, reject ) => {
 		getOrCreate( data )
 			.then( ( iap ) => {
@@ -47,6 +47,7 @@ const createStat = function( data ) {
 							enabled: data.enabled,
 							USD: data.priceAnalyticsUSD,
 							CNY: data.priceGiantCNY,
+							feed_id: feed._id,
 						});
 
 					});

@@ -6,7 +6,8 @@ const FeedSchema = new Schema({
 	language: { type: String },
 	region: { type: String },
 	platform: { type: String },
-	fetched: { type: Date },
+	type: { type: String },
+	fetched: { type: Date, default: new Date(0) },
 	interval: { type: Number }, // seconds
 	enabled: { type: Boolean },
 	path: { type: String }, // for saving the raw json files

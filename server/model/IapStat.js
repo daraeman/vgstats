@@ -10,6 +10,7 @@ const IapStatSchema = new Schema({
 	enabled: { type: Boolean },
 	USD: { type: Number },
 	CNY: { type: Number },
+	feed_id: { type: ObjectId },
 });
 
 module.exports = mongoose.model( "IapStat", IapStatSchema );
