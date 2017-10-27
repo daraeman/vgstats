@@ -6,10 +6,13 @@ const getOrCreate = function( data ) {
 		Boost.findOne( { title: data.title } )
 			.then( ( boost ) => {
 				if ( ! boost ) {
-					return Boost.create({
+					let boost = new Boost({
 						title: data.title,
 						giftable: data.giftable,
 					});
+					if ( typeof data.boost_amount !== "undefined" )
+						boost.amount = data.boost_amount;
+					return boost.save();
 				}
 				else {
 					return boost;

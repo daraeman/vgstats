@@ -8,6 +8,7 @@ const StatSchema = new Schema({
 	date: { type: Date },
 	amount: { type: Number },
 	giftable: { type: Boolean },
+	on_sale: { type: Boolean },
 	image_id: { type: ObjectId },
 	skin_id: { type: ObjectId },
 	hero_id: { type: ObjectId },

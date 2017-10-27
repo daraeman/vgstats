@@ -35,6 +35,7 @@ db.connect()
 		});
 
 		Promise.all( feed_jobs ).then( () => {
+			console.log( "a" );
 
 			let items_remaining = 0;
 			feeds.forEach( ( feed ) => {
@@ -47,7 +48,8 @@ db.connect()
 				}
 
 				items_remaining += data.items.length;
-				for ( let item of data.items ) {
+				let temp_items = JSON.parse( JSON.stringify( data.items ) );
+				data.items.forEach( ( item, index ) => {
 
 					let item_promise;
 
@@ -63,14 +65,25 @@ db.connect()
 						item_promise = BundleController.createStat;
 					else if ( item.category === "skin" )
 						item_promise = SkinController.createStat;
-					else
-						throw new Error( "unrecognized item >> ", JSON.stringify( item ) ); // log error here and continue
+					else {
+						console.log( "Unknown item", JSON.stringify( item ) );
+						return;
+						//throw new Error( "unrecognized item >> ", JSON.stringify( item ) ); // log error here and continue
+					}
 
-					item_promise( item, feed ).then( () => {
-						if ( --items_remaining === 0 )
-							db.close();
-					});
-				}
+					item_promise( item, feed )
+						.then( () => {
+							console.log( "b 2 [%s]", ( --items_remaining - 1 ) );
+							temp_items.splice( index, 1 );
+							if ( items_remaining < 58 )
+								console.log( temp_items )
+							if ( --items_remaining === 0 )
+								db.close();
+						})
+						.catch( ( error ) => {
+							throw error;
+						});
+				});
 
 			});
 		});

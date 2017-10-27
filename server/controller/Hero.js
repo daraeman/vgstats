@@ -12,6 +12,10 @@ const getOrCreate = function( data ) {
 					return Hero.create({
 						title: data.title,
 						symbol: data.symbol,
+						lore: data.lore,
+						video: data.video,
+						vgf: data.vgf,
+						epoch: data.newEpoch,
 					});
 				}
 				else {
@@ -70,6 +74,9 @@ const createStat = function( data, feed ) {
 						hero: hero._id,
 						feed_id: feed._id,
 					});
+
+					if ( typeof data.onSale !== "undefined" )
+						stat.on_sale = data.onSale,
 
 					stat.save()
 						.then( () => {
