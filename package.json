@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "setup": "node server/setup.js",
-    "start_stats": "node server/daemon/update_stats.js",
+    "update_markets": "node server/index.js start update_markets",
     "start_database": "if [ -z $(pidof mongod) ]; then mongod --config mongo.conf; else echo 'Mongod is already running'; fi;",
     "stop_database": "if [ ! -z $(pidof mongod) ]; then kill $(pidof mongod); else echo 'Mongod was not running'; fi;"
   },
