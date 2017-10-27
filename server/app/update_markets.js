@@ -17,17 +17,17 @@ const Utils = require( __dirname + "/../controller/Utils" );
 const log_path = __dirname + "/../../log/update_markets";
 let logStream = Utils.openLog( log_path );
 function log( msg ) {
-	logStream.write( msg + "\n" );
+	logStream.write( "["+ new Date() +"] " + msg + "\n" );
 }
 
 process.on( "uncaughtException", ( error ) => {
     log( error.stack );
 });
 
-
 const fetch_delay = ( 1000 * 60 ); // 60 seconds
 
 function callback() {
+	console.log( "callback" )
 
 	return new Promise( ( resolve, reject ) => {
 
@@ -98,9 +98,9 @@ function callback() {
 			})
 			.catch( ( error ) => {
 				if ( ! ( error instanceof PromiseEndError ) )
-					reject( error );
+					return reject( error );
 				log( error );
-				resolve();
+				return resolve();
 			});
 	});
 

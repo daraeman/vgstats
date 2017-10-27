@@ -40,7 +40,7 @@ const getFeedToFetch = function( type ) {
 		cutoff_date.setMinutes( cutoff_date.getMinutes() - feed_interval );
 	return Feed.findOne( {
 		type: type,
-		date: { $lt: cutoff_date },
+		fetched: { $lt: cutoff_date },
 	});
 };
 
@@ -49,7 +49,7 @@ const getFeedToFetchAll = function( type ) {
 		cutoff_date.setMinutes( cutoff_date.getMinutes() - feed_interval );
 	return Feed.find( {
 		type: type,
-		date: { $lt: cutoff_date },
+		fetched: { $lt: cutoff_date },
 	});
 };
 
