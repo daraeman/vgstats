@@ -14,8 +14,8 @@ function command( message ) {
 		console.log( "Feed Manager" );
 		console.log( "Commands:" );
 		console.log( " - list" );
-		console.log( " - add URL LANGUAGE REGION PLATFORM TYPE INTERVAL ENABLED PATH" );
-		console.log( " - update URL LANGUAGE REGION PLATFORM TYPE INTERVAL ENABLED PATH" );
+		console.log( " - add URL LANGUAGE REGION PLATFORM TYPE ENABLED PATH" );
+		console.log( " - update URL LANGUAGE REGION PLATFORM TYPE ENABLED PATH" );
 		console.log( " - delete URL" );
 		console.log( " - disable URL" );
 		console.log( " - enable URL" );
@@ -33,7 +33,6 @@ function command( message ) {
 							feed.region,
 							feed.platform,
 							feed.type,
-							feed.interval,
 							feed.enabled,
 							feed.path,
 						];
@@ -45,7 +44,7 @@ function command( message ) {
 		else if ( /^add/.test( answer ) ) {
 			let parts = answer.split( " " );
 			if ( parts.length < 2 || ! parts[1] ) {
-				command( "Invalid parameters: 'add URL LANGUAGE REGION PLATFORM TYPE INTERVAL ENABLED PATH'" );
+				command( "Invalid parameters: 'add URL LANGUAGE REGION PLATFORM TYPE ENABLED PATH'" );
 				return;
 			}
 			let url = parts[1];
@@ -53,10 +52,9 @@ function command( message ) {
 			let region = parts[3];
 			let platform = parts[4];
 			let type = parts[5];
-			let interval = parts[6];
 			let enabled = parts[7];
-			let path = parts[8];
-			FeedController.add( url, language, region, platform, type, interval, enabled, path )
+			let path = parts[7];
+			FeedController.add( url, language, region, platform, type, enabled, path )
 				.then( ( feed ) => {
 					console.log( "Feed added: ", feed );
 					command();
@@ -65,7 +63,7 @@ function command( message ) {
 		else if ( /^update/.test( answer ) ) {
 			let parts = answer.split( " " );
 			if ( parts.length < 2 || ! parts[1] ) {
-				command( "Invalid parameters: 'update URL LANGUAGE REGION PLATFORM TYPE INTERVAL ENABLED PATH'" );
+				command( "Invalid parameters: 'update URL LANGUAGE REGION PLATFORM TYPE ENABLED PATH'" );
 				return;
 			}
 			let url = parts[1];
@@ -73,10 +71,9 @@ function command( message ) {
 			let region = parts[3];
 			let platform = parts[4];
 			let type = parts[5];
-			let interval = parts[6];
-			let enabled = parts[7];
-			let path = parts[8];
-			FeedController.update( url, language, region, platform, type, interval, enabled, path )
+			let enabled = parts[6];
+			let path = parts[7];
+			FeedController.update( url, language, region, platform, type, enabled, path )
 				.then( ( feed ) => {
 					console.log( "Feed updated: ", feed );
 					command();

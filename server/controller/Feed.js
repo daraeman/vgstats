@@ -2,6 +2,8 @@ const Feed = require( "../model/Feed" );
 const fs = require( "fs.promised" );
 const request = require( "request-promise-native" );
 
+const feed_interval = 20; // minutes
+
 function createSavePath( path ) {
 	return  __dirname + "/../" + path + "/" + +new Date() + ".json";
 }
@@ -33,19 +35,21 @@ const retrieveFeed = function( feed ) {
 };
 
 const getFeedToFetch = function( type ) {
-	return Feed.findOne( { type: type }, { $where: function() {
-		let date = new Date();
-		date.setSeconds( date.getSeconds() - this.fetch_interval );
-		return this.last_fetched <= date;
-	}});
+	let cutoff_date = new Date();
+		cutoff_date.setMinutes( cutoff_date.getMinutes() - feed_interval );
+	return Feed.findOne( {
+		type: type,
+		date: { $lt: cutoff_date },
+	});
 };
 
 const getFeedToFetchAll = function( type ) {
-	return Feed.find( { type: type }, { $where: function() {
-		let date = new Date();
-		date.setSeconds( date.getSeconds() - this.fetch_interval );
-		return this.last_fetched <= date;
-	}});
+	let cutoff_date = new Date();
+		cutoff_date.setMinutes( cutoff_date.getMinutes() - feed_interval );
+	return Feed.find( {
+		type: type,
+		date: { $lt: cutoff_date },
+	});
 };
 
 const getAll = function() {
