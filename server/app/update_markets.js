@@ -82,8 +82,13 @@ function callback() {
 								item_promise = SkinController.createStat;
 							else {
 								log( "Unknown item", JSON.stringify( item ) );
-								return;
-								//throw new Error( "unrecognized item >> ", JSON.stringify( item ) ); // log error here and continue
+								if ( --items_remaining === 0 ) {
+									db.close();
+									return resolve();
+								}
+								else {
+									return;
+								}
 							}
 
 							item_promise( item, feed )
