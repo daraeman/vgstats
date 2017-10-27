@@ -24,10 +24,11 @@ process.on( "uncaughtException", ( error ) => {
     log( error.stack );
 });
 
+log ( "--------------------------------------" )
+
 const fetch_delay = ( 1000 * 60 ); // 60 seconds
 
 function callback() {
-	console.log( "callback" )
 
 	return new Promise( ( resolve, reject ) => {
 
