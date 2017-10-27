@@ -88,8 +88,10 @@ function callback() {
 
 							item_promise( item, feed )
 								.then( () => {
-									if ( --items_remaining === 0 )
+									if ( --items_remaining === 0 ) {
 										db.close();
+										return resolve();
+									}
 								})
 								.catch( ( error ) => {
 									throw error;
