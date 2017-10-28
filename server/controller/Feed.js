@@ -2,8 +2,9 @@ const Feed = require( "../model/Feed" );
 const fs = require( "fs.promised" );
 const request = require( "request-promise-native" );
 const mkdirp = require( "mkdirp-promise" );
+require( "dotenv" ).config();
 
-const feed_interval = 0.1; // minutes
+const feed_interval = process.env.FEED_INTERVAL;
 
 function createSavePath( path ) {
 	return  __dirname + "/../" + path;
