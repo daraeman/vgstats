@@ -15,6 +15,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "bootstrap": "^3.3.7",
     "daemonize2": "^0.4.2",
     "dotenv": "^4.0.0",
     "express": "^4.16.2",
@@ -22,6 +23,10 @@
     "mkdirp-promise": "^5.0.1",
     "mongoose": "^4.12.4",
     "react": "^16.0.0",
+    "react-dom": "^16.0.0",
+    "react-redux": "^5.0.6",
+    "react-router": "^4.2.0",
+    "redux": "^3.7.2",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5",
     "simple-promise-queue": "^0.1.7"
