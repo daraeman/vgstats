@@ -50,6 +50,9 @@ const createStat = function( data, feed ) {
 							feed_id: feed._id,
 						});
 
+					})
+					.then( () => {
+						return resolve();
 					});
 			})
 			.catch( ( error ) => {

@@ -4,6 +4,7 @@ const ImageController = require( "./Image" );
 const VideoController = require( "./Video" );
 
 const getOrCreate = function( data ) {
+	console.log( "getOrCreate", data.title )
 	return new Promise( ( resolve, reject) => {
 		
 		Hero.findOne( { title: data.title } )
@@ -58,7 +59,7 @@ const getOrCreate = function( data ) {
 };
 
 const createStat = function( data, feed ) {
-	return new Promise( ( resolve, reject) => {
+	return new Promise( ( resolve, reject ) => {
 
 		getOrCreate( data )
 			.then( ( hero ) => {
@@ -76,7 +77,7 @@ const createStat = function( data, feed ) {
 					});
 
 					if ( typeof data.onSale !== "undefined" )
-						stat.on_sale = data.onSale,
+						stat.on_sale = data.onSale;
 
 					stat.save()
 						.then( () => {

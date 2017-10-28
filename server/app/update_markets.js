@@ -24,7 +24,7 @@ process.on( "uncaughtException", ( error ) => {
     log( error.stack );
 });
 
-log ( "--------------------------------------" )
+log ( "--------------------------------------" );
 
 const fetch_delay = ( 1000 * 60 ); // 60 seconds
 
@@ -32,17 +32,20 @@ function callback() {
 
 	return new Promise( ( resolve, reject ) => {
 
+		let this_feeds;
 		FeedController.getFeedToFetchAll( "market" )
 			.then( ( feeds ) => {
 
 				if ( ! feeds || ! feeds.length )
 					throw new PromiseEndError( "Nothing to fetch" );
 
+				this_feeds = feeds;
+
 				log( "["+ feeds.length +"] feeds found to fetch" );
 
 				let feed_jobs = [];
 				feeds.forEach( ( feed ) => {
-					feed_jobs.push( queue.pushTask( ( resolve ) => {
+					feed_jobs.push( queue.pushTask( function( resolve ) {
 						FeedController.retrieveFeed( feed )
 							.then( ( json ) => {
 								feed.json = json;
@@ -51,10 +54,14 @@ function callback() {
 					}) );
 				});
 
-				Promise.all( feed_jobs ).then( () => {
+				return Promise.all( feed_jobs );
+
+			})
+			.then( () => {
 
 					let items_remaining = 0;
-					feeds.forEach( ( feed ) => {
+					let item_jobs = [];
+					this_feeds.forEach( ( feed ) => {
 
 						let data;
 						try {
@@ -67,7 +74,6 @@ function callback() {
 						data.items.forEach( ( item ) => {
 
 							let item_promise;
-
 							if ( item.category === "iap" )
 								item_promise = IapController.createStat;
 							else if ( item.category === "boost" )
@@ -83,7 +89,6 @@ function callback() {
 							else {
 								log( "Unknown item", JSON.stringify( item ) );
 								if ( --items_remaining === 0 ) {
-									db.close();
 									return resolve();
 								}
 								else {
@@ -91,25 +96,25 @@ function callback() {
 								}
 							}
 
-							item_promise( item, feed )
-								.then( () => {
-									if ( --items_remaining === 0 ) {
-										db.close();
-										return resolve();
-									}
-								})
-								.catch( ( error ) => {
-									throw error;
-								});
-						});
+							item_jobs.push( queue.pushTask( function( resolve ) {
+								item_promise( item, feed )
+									.then( () => {
+										resolve();
+									});
+							}) );
 
+						});
 					});
-				});
+
+				return Promise.all( item_jobs );
+
+			})
+			.then( () => {
+				return resolve();
 			})
 			.catch( ( error ) => {
 				if ( ! ( error instanceof PromiseEndError ) )
 					return reject( error );
-				log( error );
 				return resolve();
 			});
 	});
