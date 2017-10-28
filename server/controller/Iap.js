@@ -39,17 +39,34 @@ const createStat = function( data, feed ) {
 						if ( ! image )
 							throw new Error( "Failed to getOrCreate [%s]", data.image );
 
-						return IapStat.create({
+						IapStat.findOne({
 							id: iap._id,
-							date: new Date(),
-							amount: data.amount,
-							image_id: image._id,
-							enabled: data.enabled,
-							USD: data.priceAnalyticsUSD,
-							CNY: data.priceGiantCNY,
-							feed_id: feed._id,
-						});
-
+							feed: feed._id,
+						}).sort({ date: "desc" })
+							.then( ( stat ) => {
+								if (
+									! stat ||
+									stat.amount !== data.amount ||
+									stat.image !== image._id ||
+									stat.enabled !== data.enabled ||
+									stat.USD !== data.priceAnalyticsUSD ||
+									stat.CNY !== data.priceGiantCNY
+								) {
+									return IapStat.create({
+										id: iap._id,
+										date: new Date(),
+										amount: data.amount,
+										image: image._id,
+										enabled: data.enabled,
+										USD: data.priceAnalyticsUSD,
+										CNY: data.priceGiantCNY,
+										feed: feed._id,
+									});
+								}
+							})
+							.then( () => {
+								return resolve();
+							});
 					})
 					.then( () => {
 						return resolve();
