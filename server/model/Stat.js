@@ -9,13 +9,13 @@ const StatSchema = new Schema({
 	amount: { type: Number },
 	giftable: { type: Boolean },
 	on_sale: { type: Boolean },
-	image_id: { type: ObjectId },
-	skin_id: { type: ObjectId },
-	hero_id: { type: ObjectId },
-	action_id: { type: ObjectId },
-	boost_id: { type: ObjectId },
-	bundle_id: { type: ObjectId },
-	feed_id: { type: ObjectId },
+	image: { type: ObjectId },
+	skin: { type: ObjectId },
+	hero: { type: ObjectId },
+	action: { type: ObjectId },
+	boost: { type: ObjectId },
+	bundle: { type: ObjectId },
+	feed: { type: ObjectId },
 });
 
 module.exports = mongoose.model( "Stat", StatSchema );

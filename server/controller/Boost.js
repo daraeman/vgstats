@@ -38,21 +38,33 @@ const createStat = function( data, feed ) {
 				let remaining = data.SKUs.length;
 				data.SKUs.forEach( ( sku ) => {
 
-					let stat = new Stat({
-						id: sku.id,
-						currency: Object.keys( sku.price )[0],
-						date: new Date(),
-						amount: sku.price[ Object.keys( sku.price )[0] ],
-						boost_id: boost._id,
-						feed_id: feed._id,
-					});
+					let currency = Object.keys( sku.price )[0];
+					let amount = sku.price[ Object.keys( sku.price )[0] ];
 
-					stat.save()
+					Stat.findOne({
+						id: sku.id,
+						currency: currency,
+						boost: boost._id,
+						feed: feed._id,
+					}).sort({ date: "desc" })
+						.then( ( stat ) => {
+
+							if ( ! stat || stat.amount !== amount ) {
+								
+								return Stat.create({
+									id: sku.id,
+									currency: currency,
+									date: new Date(),
+									amount: amount,
+									boost: boost._id,
+									feed: feed._id,
+								});
+							}
+						})
 						.then( () => {
 							if ( --remaining === 0 )
 								return resolve();
 						});
-
 				});
 			})
 			.catch( ( error ) => {

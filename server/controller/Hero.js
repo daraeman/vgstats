@@ -66,24 +66,38 @@ const createStat = function( data, feed ) {
 				let remaining = data.SKUs.length;
 				data.SKUs.forEach( ( sku ) => {
 
-					let stat = new Stat({
+					let currency = Object.keys( sku.price )[0];
+					let amount = sku.price[ Object.keys( sku.price )[0] ];
+
+					Stat.findOne({
 						id: sku.id,
-						currency: Object.keys( sku.price )[0],
-						date: new Date(),
-						amount: sku.price[ Object.keys( sku.price )[0] ],
+						currency: currency,
 						hero: hero._id,
-						feed_id: feed._id,
-					});
+						feed: feed._id,
+					}).sort({ date: "desc" })
+						.then( ( stat ) => {
+							
+							if ( ! stat || stat.amount !== amount ) {
 
-					if ( typeof data.onSale !== "undefined" )
-						stat.on_sale = data.onSale;
+								let stat = new Stat({
+									id: sku.id,
+									currency: currency,
+									date: new Date(),
+									amount: amount,
+									hero: hero._id,
+									feed: feed._id,
+								});
 
-					stat.save()
+								if ( typeof data.onSale !== "undefined" )
+									stat.on_sale = data.onSale;
+
+								return stat.save();
+							}
+						})
 						.then( () => {
 							if ( --remaining === 0 )
 								return resolve();
 						});
-
 				});
 			})
 			.catch( ( error ) => {

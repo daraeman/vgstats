@@ -6,11 +6,11 @@ const IapStatSchema = new Schema({
 	IapId: { type: ObjectId },
 	date: { type: Date },
 	amount: { type: Number },
-	image_id: { type: ObjectId },
+	image: { type: ObjectId },
 	enabled: { type: Boolean },
 	USD: { type: Number },
 	CNY: { type: Number },
-	feed_id: { type: ObjectId },
+	feed: { type: ObjectId },
 });
 
 module.exports = mongoose.model( "IapStat", IapStatSchema );
