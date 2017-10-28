@@ -4,7 +4,7 @@ const request = require( "request-promise-native" );
 const mkdirp = require( "mkdirp-promise" );
 require( "dotenv" ).config();
 
-const feed_interval = process.env.FEED_INTERVAL;
+const feed_interval = parseInt( process.env.FEED_INTERVAL );
 
 function createSavePath( path ) {
 	return  __dirname + "/../" + path;
@@ -12,13 +12,6 @@ function createSavePath( path ) {
 
 const retrieveFeed = function( feed ) {
 	return new Promise( ( resolve, reject ) => {
-
-		fs.readFile( __dirname + "/../data/marketfeed/ios/na/en/1509177889513.json" )
-			.then( ( json ) => {
-				return resolve( json );
-			});
-
-		return;
 
 		let json;
 		request( feed.url )

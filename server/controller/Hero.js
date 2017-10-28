@@ -4,7 +4,6 @@ const ImageController = require( "./Image" );
 const VideoController = require( "./Video" );
 
 const getOrCreate = function( data ) {
-	console.log( "getOrCreate", data.title )
 	return new Promise( ( resolve, reject) => {
 		
 		Hero.findOne( { title: data.title } )
