@@ -70,16 +70,21 @@ function callback() {
 			})
 			.then( () => {
 
-					let items_remaining = 0;
-					let item_jobs = [];
-					this_feeds.forEach( ( feed ) => {
+				let items_remaining = 0;
+				let item_jobs = [];
+				this_feeds.forEach( ( feed ) => {
 
-						let data;
-						try {
-							data = JSON.parse( feed.json );
-						} catch ( error ) {
-							throw error; // log error here and continue
-						}
+					let data;
+					try {
+						data = JSON.parse( feed.json );
+					} catch ( error ) {
+						throw error; // log error here and continue
+					}
+
+					if ( data.rendered != feed.change_id ) {
+
+						feed.change_id = data.rendered;
+						feed.save();
 
 						items_remaining += data.items.length;
 						data.items.forEach( ( item ) => {
@@ -110,12 +115,12 @@ function callback() {
 							item_jobs.push( queue.pushTask( function( resolve ) {
 								item_promise( item, feed )
 									.then( () => {
-										resolve();
+										return resolve();
 									});
 							}) );
-
 						});
-					});
+					}
+				});
 
 				return Promise.all( item_jobs );
 

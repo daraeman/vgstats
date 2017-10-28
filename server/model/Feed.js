@@ -12,6 +12,7 @@ const FeedSchema = new Schema({
 	path: { type: String }, // for saving the raw json files
 	error: { type: Boolean, default: false },
 	fetch_errors: { type: Array, default: [] },
+	change_id: { type: String, default: "" }, // this is currently a timestamp, but leaving it as a String in case theit format changes and we need to rely on a hash
 });
 
 module.exports = mongoose.model( "Feed", FeedSchema );
