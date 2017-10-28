@@ -26,7 +26,8 @@ process.on( "uncaughtException", ( error ) => {
 
 log ( "--------------------------------------" );
 
-const fetch_delay = ( 1000 * 60 ); // 60 seconds
+const loop_delay = ( 1000 * 60 ); // check for feeds needing updating every 60 seconds
+const request_delay = ( 1000 * 10 ); // don't hit servers more thatn once every 10 seconds
 
 function callback() {
 
@@ -46,11 +47,21 @@ function callback() {
 				let feed_jobs = [];
 				feeds.forEach( ( feed ) => {
 					feed_jobs.push( queue.pushTask( function( resolve ) {
+
+						// if our request is quicker than request_delay,
+						// timeout for the difference of the time
+						let start_date = +new Date();
 						FeedController.retrieveFeed( feed )
 							.then( ( json ) => {
 								feed.json = json;
-								resolve();
+								let end_date = +new Date();
+								let diff = ( end_date - start_date );
+								let delay = ( diff >= request_delay ) ? 0 : ( request_delay - diff );
+								setTimeout( () => {
+									resolve();
+								}, delay );
 							});
+						
 					}) );
 				});
 
@@ -124,7 +135,7 @@ function callback() {
 db.connect()
 	.then(() => {
 		log( "DB connected, starting" );
-		Utils.loop( callback, fetch_delay );
+		Utils.loop( callback, loop_delay );
 	})
 	.catch( ( error ) => {
 		log( error );
