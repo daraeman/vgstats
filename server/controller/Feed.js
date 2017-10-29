@@ -4,6 +4,7 @@ const request = require( "request-promise-native" );
 const mkdirp = require( "mkdirp-promise" );
 require( "dotenv" ).config();
 
+// how often to check feeds
 const feed_interval = parseInt( process.env.FEED_INTERVAL );
 
 function createSavePath( path ) {
