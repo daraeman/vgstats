@@ -10,30 +10,47 @@
     "stop_update_markets": "node server/index.js stop update_markets",
     "status_update_markets": "node server/index.js status update_markets",
     "start_database": "if [ -z $(pidof mongod) ]; then mongod --config mongo.conf; else echo 'Mongod is already running'; fi;",
-    "stop_database": "if [ ! -z $(pidof mongod) ]; then kill $(pidof mongod); else echo 'Mongod was not running'; fi;"
+    "stop_database": "if [ ! -z $(pidof mongod) ]; then kill $(pidof mongod); else echo 'Mongod was not running'; fi;",
+    "start_client_dev": "export NODE_ENV=dev; node_modules/.bin/webpack-dev-server"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-react-html-attrs": "^2.0.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
     "bootstrap": "^3.3.7",
+    "css-loader": "^0.28.7",
     "daemonize2": "^0.4.2",
     "dotenv": "^4.0.0",
     "express": "^4.16.2",
     "fs.promised": "^3.0.0",
+    "less": "^2.7.3",
+    "less-loader": "^4.0.5",
     "mkdirp-promise": "^5.0.1",
     "mongoose": "^4.12.4",
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "react-redux": "^5.0.6",
     "react-router": "^4.2.0",
+    "react-router-dom": "^4.2.2",
     "redux": "^3.7.2",
     "request": "^2.83.0",
     "request-promise-native": "^1.0.5",
-    "simple-promise-queue": "^0.1.7"
+    "simple-promise-queue": "^0.1.7",
+    "style-loader": "^0.19.0",
+    "uglifyjs-webpack-plugin": "^1.0.1"
   },
   "devDependencies": {
     "chai": "^4.1.2",
     "mocha": "^4.0.1",
-    "nodemon": "^1.12.1"
+    "nodemon": "^1.12.1",
+    "webpack": "^3.8.1",
+    "webpack-dev-server": "^2.9.3"
   }
 }
