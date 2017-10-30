@@ -1,13 +1,13 @@
-const db = require( __dirname + "/../controller/db" );
-const ActionController = require( __dirname + "/../controller/Action" );
-const BoostController = require( __dirname + "/../controller/Boost" );
-const BundleController = require( __dirname + "/../controller/Bundle" );
-const HeroController = require( __dirname + "/../controller/Hero" );
-const IapController = require( __dirname + "/../controller/Iap" );
-const SkinController = require( __dirname + "/../controller/Skin" );
-const FeedController = require( __dirname + "/../controller/Feed" );
-const PromiseEndError = require( __dirname + "/../controller/PromiseEndError" );
-require( "dotenv" ).config( __dirname + "/../../.env" );
+const db = require( "../controller/db" );
+const ActionController = require( "../controller/Action" );
+const BoostController = require( "../controller/Boost" );
+const BundleController = require( "../controller/Bundle" );
+const HeroController = require( "../controller/Hero" );
+const IapController = require( "../controller/Iap" );
+const SkinController = require( "../controller/Skin" );
+const FeedController = require( "../controller/Feed" );
+const PromiseEndError = require( "../controller/PromiseEndError" );
+require( "dotenv" ).config();
 const Queue = require( "simple-promise-queue" );
 let queue = new Queue({
 	autoStart: true,
