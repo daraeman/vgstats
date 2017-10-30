@@ -1,6 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
-import Dygraph from "dygraphs";
+import * as d3 from "d3";
 
 import { fetchHero } from "../actions/Hero"
 
@@ -21,19 +21,97 @@ export default class Hero extends React.Component {
 	}
 
 	componentDidMount() {
-		function add_date( minutes ) {
-			let d = new Date();
-				d.setMinutes( d.getMinutes() + minutes );
-			return d;
+
+		function getRandomIntInclusive(min, max) {
+			min = Math.ceil(min);
+			max = Math.floor(max);
+			return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
 		}
-		let graph_data = [
-			[ new Date(), 5 ],
-			[ add_date( 5 ), 50 ],
-			[ add_date( 10 ), 40 ],
-			[ add_date( 15 ), 6 ],
-		];
-		console.log( graph_data )
-		new Dygraph( document.getElementById( "graph" ), graph_data );
+		
+		function add_date( minutes ) {
+			let d = new Date()
+				d.setSeconds( d.getSeconds() - minutes )
+			return d
+		}
+
+		let data = [
+			{ date: add_date( 100 ), value: getRandomIntInclusive( 1, 1000 ) },
+			{ date: add_date( 500 ), value: getRandomIntInclusive( 1, 1000 ) },
+			{ date: add_date( 1000 ), value: getRandomIntInclusive( 1, 1000 ) },
+			{ date: add_date( 1500 ), value: getRandomIntInclusive( 1, 1000 ) },
+		]
+
+		data = data.sort( ( a,b ) => {
+			return ( a.date - b.date )
+		})
+
+		let svg = d3.select( "#price_graph" )
+
+		let margin = { top: 20, right: 20, bottom: 30, left: 50 }
+		let width = ( parseInt( svg.style( "width" ) ) - margin.left - margin.right )
+		let height = ( parseInt( svg.style( "height" ) ) - margin.top - margin.bottom )
+		let g = svg.append( "g" ).attr( "transform", "translate(" + margin.left + "," + margin.top + ")" )
+
+		let x = d3.scaleTime()
+			.rangeRound( [ 0, width ] )
+
+		let y = d3.scaleLinear()
+			.rangeRound( [ height, 0 ] )
+
+		let line = d3.line()
+			.x( function( d ) { return x( d.date ); })
+			.y( function( d ) { return y( d.value ); })
+
+		x.domain( [ d3.min( data, function( d ) { return d.date; }), new Date() ])
+		y.domain( d3.extent( data, function( d ) { return d.value; }))
+
+		g.append( "g" )
+				.attr( "transform", "translate( 0," + height + " )" )
+				.call( d3.axisBottom( x ) )
+			.select( ".domain" )
+				.remove()
+
+		g.append( "g" )
+				.call( d3.axisLeft( y ) )
+			.append( "text" )
+				.attr( "fill", "#000" )
+				.attr( "transform", "rotate( -90 )" )
+				.attr( "y", 6 )
+				.attr( "dy", "0.71em" )
+				.attr( "text-anchor", "end" )
+				.text( "Price ($)" )
+
+		data.forEach( ( d, index ) => {
+
+			let this_data = [ d ]
+			let color = "blue"
+
+			// if this is the last value, extend to the current date
+			if ( index === ( data.length - 1 ) ) {
+				this_data.push({
+					date: new Date(),
+					value: d.value
+				})
+				color = "red"
+				console.log( this_data )
+			}
+			// otherwise, extend line until the start of the next line
+			else {
+				this_data.push({
+					date: data[ index + 1 ].date.setSeconds( data[ index + 1 ].date.getSeconds() - 1 ),
+					value: d.value
+				})
+			}
+
+			g.append( "path" )
+				.datum( this_data )
+				.attr( "fill", "none" )
+				.attr( "stroke", color )
+				.attr( "stroke-linejoin", "round" )
+				.attr( "stroke-linecap", "round" )
+				.attr( "stroke-width", 1.5 )
+				.attr( "d", line )
+		})
 	}
 
 	render() {
@@ -49,7 +127,7 @@ export default class Hero extends React.Component {
 				</div>
 
 				<div class="container">
-					<div id="graph"></div>
+					<svg id="price_graph"></svg>
 				</div>
 
 			</main>

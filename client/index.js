@@ -22,6 +22,7 @@ ReactDOM.render(
 					<Switch>
 						<Route path="/" exact component={ Splash } />
 						<Route path="/heroes" exact component={ Heroes } />
+						<Route path="/hero/:heroName" exact component={ Hero } />
 						<Route path="/hero" exact component={ Hero } />
 					</Switch>
 					<Footer />
