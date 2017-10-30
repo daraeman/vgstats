@@ -1,10 +1,12 @@
 const mongoose = require( "mongoose" );
 mongoose.Promise = global.Promise;
+require( "dotenv" ).config();
 
-const connect = function( db_name ) {
+let db_name;
 
-	db_name = db_name || process.env.DB_NAME;
-	const db_url = "mongodb://"+ process.env.DB_HOST + ":"+ process.env.DB_PORT +"/"+ db_name;
+const connect = function( custom_db_name ) {
+
+	db_name = custom_db_name || process.env.DB_NAME;
 
 	return new Promise( ( resolve, reject ) => {
 
@@ -23,7 +25,7 @@ const connect = function( db_name ) {
 			};
 		}
 
-		mongoose.connect( db_url, connection_params )
+		mongoose.connect( getUrl(), connection_params )
 			.then( () => {
 
 				if ( mongoose.connection.readyState !== 1 )
@@ -41,8 +43,16 @@ const close = function() {
 	return mongoose.connection.close();
 };
 
+const getUrl = function( with_credentials ) {
+	if ( with_credentials && process.env.DB_USER && process.env.DB_PASSWORD )
+		return "mongodb://"+ process.env.DB_USER +":"+ process.env.DB_PASSWORD +"@"+ process.env.DB_HOST +":"+ process.env.DB_PORT +"/"+ db_name;
+	else
+		return "mongodb://"+ process.env.DB_HOST + ":"+ process.env.DB_PORT +"/"+ db_name;
+};
+
 module.exports = {
 	connect: connect,
 	close: close,
 	mongoose: mongoose,
+	getUrl: getUrl,
 };
