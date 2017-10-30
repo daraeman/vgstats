@@ -1,10 +1,9 @@
 export default function reducer(
 	state = {
-		hero: [
-			{
-				name: "",		
-			}
-		],
+		hero: {
+			hero: {},
+			stats: [],
+		},
 		fetching: false,
 		fetched: false,
 		error: null,

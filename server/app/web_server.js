@@ -56,8 +56,8 @@ app.use( session({
 }));
 */
 // routes
-app.get( "/api/heroes/get", jsonParser, heroes_view.heroes_list );
-//app.get( "/api/hero/get", jsonParser, hero_view.hero_data );
+app.post( "/api/heroes/get", heroes_view.heroes_list );
+app.post( "/api/hero/get", jsonParser, hero_view.hero_data );
 
 if ( process.env.NODE_ENV == "production" ) {
 	app.get( "/bundle.js", ( request, response ) => {

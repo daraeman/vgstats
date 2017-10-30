@@ -9,7 +9,8 @@ require( "../less/Hero.less" )
 @connect( ( store ) => {
 	console.log( "store", store )
 	return {
-		hero: store.hero.hero,
+		hero: store.hero.hero.hero,
+		stats: store.hero.hero.stats,
 	}
 })
 
@@ -19,32 +20,9 @@ export default class Hero extends React.Component {
 		this.props.dispatch( fetchHero( this.props.dispatch, this.props.match.params.heroName ) )
 	}
 
-	componentDidMount() {
+	makeGraph( data, type ) {
 
-		function getRandomIntInclusive(min, max) {
-			min = Math.ceil(min);
-			max = Math.floor(max);
-			return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
-		}
-		
-		function add_date( minutes ) {
-			let d = new Date()
-				d.setSeconds( d.getSeconds() - minutes )
-			return d
-		}
-
-		let data = [
-			{ date: add_date( 100 ), value: getRandomIntInclusive( 1, 1000 ) },
-			{ date: add_date( 500 ), value: getRandomIntInclusive( 1, 1000 ) },
-			{ date: add_date( 1000 ), value: getRandomIntInclusive( 1, 1000 ) },
-			{ date: add_date( 1500 ), value: getRandomIntInclusive( 1, 1000 ) },
-		]
-
-		data = data.sort( ( a,b ) => {
-			return ( a.date - b.date )
-		})
-
-		let svg = d3.select( "#price_graph" )
+		let svg = d3.select( "#"+ type +"_graph" )
 
 		let margin = { top: 20, right: 20, bottom: 30, left: 50 }
 		let width = ( parseInt( svg.style( "width" ) ) - margin.left - margin.right )
@@ -78,7 +56,7 @@ export default class Hero extends React.Component {
 				.attr( "y", 6 )
 				.attr( "dy", "0.71em" )
 				.attr( "text-anchor", "end" )
-				.text( "Price ($)" )
+				.text( type[0].toUpperCase() + type.slice( 1 ) )
 
 		data.forEach( ( d, index ) => {
 
@@ -110,7 +88,42 @@ export default class Hero extends React.Component {
 				.attr( "stroke-linecap", "round" )
 				.attr( "stroke-width", 1.5 )
 				.attr( "d", line )
-		})
+		});
+	}
+
+	makeAllGraphs() {
+
+		if ( ! this.props.stats.length )
+			return;
+
+		let data = this.props.stats.sort( ( a, b ) => {
+			return ( a.date - b.date );
+		}).map( ( item ) => {
+			item.date = new Date( item.date );
+			return item;
+		});
+
+
+		let ice = data.filter( ( d ) => {
+			return ( d.currency === "gold" );
+		});
+
+		let glory = data.filter( ( d ) => {
+			return ( d.currency === "silver" );
+		});
+
+		this.makeGraph( ice, "ice" );
+		this.makeGraph( glory, "glory" );
+	}
+
+	// we need to wait until the html has been rendered, so we can send the element to d3
+	componentDidMount() {
+		this.makeAllGraphs()
+	}
+
+	// update the graphs once we get our data from the api
+	componentDidUpdate() {
+		this.makeAllGraphs()
 	}
 
 	render() {
@@ -121,12 +134,18 @@ export default class Hero extends React.Component {
 
 			<main role="main">
 
-				<div class="container">
-					<h1 class="">Heroes</h1>
+				<div class="jumbotron">
+					<div class="container">
+						<h1 class="">Hero: { hero.name }</h1>
+					</div>
 				</div>
 
 				<div class="container">
-					<svg id="price_graph"></svg>
+					<svg id="ice_graph"></svg>
+				</div>
+
+				<div class="container">
+					<svg id="glory_graph"></svg>
 				</div>
 
 			</main>

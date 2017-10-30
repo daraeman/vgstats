@@ -13,7 +13,7 @@ export function fetchHeroes( dispatch ) {
 	dispatch({ type: "FETCH_HEROES_PENDING" })
 	return function ( dispatch ) {
 
-		axios( process.env.REACT_APP_BACKEND_URL + "/api/heroes/get", { method: "get", withCredentials: true } )
+		axios( process.env.REACT_APP_BACKEND_URL + "/api/heroes/get", { method: "post", withCredentials: true } )
 			.then( ( response ) => {
 				dispatch({ type: "FETCH_HEROES_FULFILLED", payload: response.data })
 			})
