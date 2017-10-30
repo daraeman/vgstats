@@ -16,8 +16,7 @@ require( "../less/Hero.less" )
 export default class Hero extends React.Component {
 
 	componentWillMount() {
-		console.log( "Hero" )
-		this.props.dispatch( fetchHero( this.props.dispatch ) )
+		this.props.dispatch( fetchHero( this.props.dispatch, this.props.match.params.heroName ) )
 	}
 
 	componentDidMount() {

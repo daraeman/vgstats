@@ -3,8 +3,14 @@ const debug = process.env.NODE_ENV !== "production";
 const webpack = require( "webpack" );
 const path = require( "path" );
 const UglifyJSPlugin = require( "uglifyjs-webpack-plugin" );
+const Dotenv = require( "dotenv-webpack" );
 
-let plugins = [];
+let plugins = [
+	new Dotenv({
+		path: ".env", 
+		safe: false,
+	})
+];
 if ( ! debug ) {
 	plugins.push(
 		new webpack.optimize.UglifyJsPlugin()

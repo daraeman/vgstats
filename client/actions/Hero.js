@@ -1,5 +1,4 @@
-//import axios from "axios"
-
+import axios from "axios"
 
 /*
 {
@@ -12,19 +11,20 @@
 export function fetchHero( dispatch, name ) {
 
 	dispatch({ type: "FETCH_HERO_PENDING" })
+	console.log( "hero action", name )
 	return function ( dispatch ) {
-		dispatch({ type: "FETCH_HERO_FULFILLED", payload: [
-			{ name: "Adagio" },
-		] })
-/*
-		axios( process.env.REACT_APP_BACKEND_URL + "/api/users/list", { method: "post", data: { search: search, amount: amount, page: page }, withCredentials: true } )
+//		dispatch({ type: "FETCH_HERO_FULFILLED", payload: [
+//			{ name: name },
+//		] })
+
+		axios( process.env.REACT_APP_BACKEND_URL + "/api/hero/get", { method: "get", data: { name: name }, withCredentials: true } )
 			.then( ( response ) => {
-				dispatch({ type: "FETCH_HEROES_FULFILLED", payload: response.data })
+				dispatch({ type: "FETCH_HERO_FULFILLED", payload: response.data })
 			})
 			.catch( ( error ) => {
 				console.log( "error", error )
-				dispatch({ type: "FETCH_HEROES_REJECTED", payload: { message: error.response.data, status: error.response.status } })
+				dispatch({ type: "FETCH_HERO_REJECTED", payload: error })
 			});
-*/
+
 	}
 }
