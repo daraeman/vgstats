@@ -2,22 +2,21 @@ import React from "react"
 import { connect } from "react-redux"
 import * as d3 from "d3";
 
-import { fetchHero } from "../actions/Hero"
+import { fetchSkin } from "../actions/Skin"
 
-require( "../less/Hero.less" )
+require( "../less/Skin.less" )
 
 @connect( ( store ) => {
-	console.log( "store", store )
 	return {
-		hero: store.hero.hero.hero,
-		stats: store.hero.hero.stats,
+		skin: store.skin.skin.skin,
+		stats: store.skin.skin.stats,
 	}
 })
 
-export default class Hero extends React.Component {
+export default class Skin extends React.Component {
 
 	componentWillMount() {
-		this.props.dispatch( fetchHero( this.props.dispatch, this.props.match.params.heroName ) )
+		this.props.dispatch( fetchSkin( this.props.dispatch, this.props.match.params.skinName ) )
 	}
 
 	makeGraph( data, type ) {
@@ -112,12 +111,12 @@ export default class Hero extends React.Component {
 			return ( d.currency === "gold" );
 		});
 
-		let glory = data.filter( ( d ) => {
-			return ( d.currency === "silver" );
+		let opal = data.filter( ( d ) => {
+			return ( d.currency === "opal" );
 		});
 
 		this.makeGraph( ice, "ice" );
-		this.makeGraph( glory, "glory" );
+		this.makeGraph( opal, "opal" );
 	}
 
 	// we need to wait until the html has been rendered, so we can send the element to d3
@@ -132,7 +131,7 @@ export default class Hero extends React.Component {
 
 	render() {
 
-		const { hero } = this.props
+		const { skin } = this.props
 
 		return (
 
@@ -140,12 +139,12 @@ export default class Hero extends React.Component {
 
 				<div class="jumbotron">
 					<div class="container">
-						<h1 class="">Hero: { hero.name }</h1>
+						<h1 class="">Skin: { skin.name }</h1>
 					</div>
 				</div>
 
 				<div class="container" id="ice_graph"></div>
-				<div class="container" id="glory_graph"></div>
+				<div class="container" id="opal_graph"></div>
 
 			</main>
 		)

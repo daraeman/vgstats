@@ -11,12 +11,7 @@ import axios from "axios"
 export function fetchHero( dispatch, name ) {
 
 	dispatch({ type: "FETCH_HERO_PENDING" })
-	console.log( "hero action", name )
 	return function ( dispatch ) {
-//		dispatch({ type: "FETCH_HERO_FULFILLED", payload: [
-//			{ name: name },
-//		] })
-
 		axios( process.env.REACT_APP_BACKEND_URL + "/api/hero/get", { method: "post", data: { name: name }, withCredentials: true } )
 			.then( ( response ) => {
 				dispatch({ type: "FETCH_HERO_FULFILLED", payload: response.data })
