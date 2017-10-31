@@ -16,6 +16,7 @@ function log( msg ) {
 }
 const heroes_view = require( "../controller/HeroesView" );
 const hero_view = require( "../controller/HeroView" );
+const skins_view = require( "../controller/SkinsView" );
 
 process.on( "uncaughtException", ( error ) => {
     log( error.stack );
@@ -58,6 +59,7 @@ app.use( session({
 // routes
 app.post( "/api/heroes/get", heroes_view.heroes_list );
 app.post( "/api/hero/get", jsonParser, hero_view.hero_data );
+app.post( "/api/skins/get", skins_view.skins_list );
 
 if ( process.env.NODE_ENV == "production" ) {
 	app.get( "/bundle.js", ( request, response ) => {

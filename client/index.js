@@ -8,6 +8,7 @@ import TopNav from "./components/TopNav"
 import Footer from "./components/Footer"
 import Heroes from "./components/Heroes"
 import Hero from "./components/Hero"
+import Skins from "./components/Skins"
 
 import store from "./store"
 
@@ -24,6 +25,7 @@ ReactDOM.render(
 						<Route path="/heroes" exact component={ Heroes } />
 						<Route path="/hero/:heroName" exact component={ Hero } />
 						<Route path="/hero" exact component={ Hero } />
+						<Route path="/skins" exact component={ Skins } />
 					</Switch>
 					<Footer />
 				</div>
