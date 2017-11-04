@@ -4,6 +4,6 @@ mongo.conf
 .env
 *.DS_Store
 data/database/*
-log
+log/*
 pids/*
 !.gitkeep
