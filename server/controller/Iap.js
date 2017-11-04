@@ -59,7 +59,6 @@ const createStat = function( data, feed, date ) {
 						// create stat if it doesn't exist,
 						// or if the values have changed (ignoring missing ),
 						// or if the stat was missing but is back
-						console.log( stat )
 						if (
 							! stat ||
 							stat.missing ||
