@@ -84,8 +84,7 @@ function callback() {
 						throw error;
 					}
 
-					//if ( data.rendered != feed.change_id ) {
-					if ( true ) {
+					if ( data.rendered != feed.change_id ) {
 
 						function removeStat( category, stat_id ) {
 							
