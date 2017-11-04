@@ -1,24 +1,30 @@
 const Skin = require( "../model/Skin" );
 const Stat = require( "../model/Stat" );
 
+const get = function( data ) {
+	return Skin.findOne( { symbol: data.symbol } );
+};
+
+const create = function( data ) {
+	return Skin.create({ symbol: data.symbol });
+};
+
 const getOrCreate = function( data ) {
-	return new Promise( ( resolve, reject) => {
+	return new Promise( ( resolve, reject ) => {
 		
-		Skin.findOne( { symbol: data.symbol } )
-			.then( ( hero ) => {
-				if ( ! hero ) {
-					return Skin.create({
-						symbol: data.symbol,
-					});
+		get( data )
+			.then( ( skin ) => {
+				if ( ! skin ) {
+					return create( data );
 				}
 				else {
-					return hero;
+					return skin;
 				}
 			})
-			.then( ( hero ) => {
-				if ( ! hero )
+			.then( ( skin ) => {
+				if ( ! skin )
 					throw new Error( "Skin not returned after creating" );
-				return resolve( hero );
+				return resolve( skin );
 			})
 			.catch( ( error ) => {
 				return reject( error );
@@ -26,9 +32,10 @@ const getOrCreate = function( data ) {
 	});
 };
 
-const createStat = function( data, feed ) {
+const createStat = function( data, feed, date ) {
 	return new Promise( ( resolve, reject) => {
 
+		let stats = [];
 		getOrCreate( data )
 			.then( ( skin ) => {
 
@@ -46,21 +53,32 @@ const createStat = function( data, feed ) {
 					}).sort({ date: "desc" })
 						.then( ( stat ) => {
 
-							if ( ! stat || stat.amount !== amount ) {
+							if (
+								! stat ||
+								stat.missing || 
+								(
+									stat.amount !== amount &&
+									! stat.missing
+								)
+							) {
 								
 								return Stat.create({
 									id: sku.id,
 									currency: currency,
-									date: new Date(),
+									date: date,
 									amount: amount,
 									skin: skin._id,
 									feed: feed._id,
 								});
 							}
+							else {
+								return stat;
+							}
 						})
-						.then( () => {
+						.then( ( stat ) => {
+							stats.push( stat );
 							if ( --remaining === 0 )
-								return resolve();
+								return resolve( { category: "skin", stats: stats } );
 						});
 				});
 
@@ -72,7 +90,36 @@ const createStat = function( data, feed ) {
 	});
 };
 
+const checkAndAddMissingStat = function( stat ) {
+
+	return new Promise( ( resolve, reject ) => {
+
+		if ( stat && ! stat.missing ) {
+			
+			Stat.create({
+				id: stat.id,
+				currency: stat.currency,
+				date: new Date(),
+				skin: stat.skin,
+				feed: stat.feed,
+				missing: true,
+			})
+			.then( () => {
+				return resolve();
+			})
+			.catch( ( error ) => {
+				return reject( error );
+			});
+		}
+		else {
+			resolve();
+		}
+
+	});
+};
+
 module.exports = {
 	getOrCreate: getOrCreate,
 	createStat: createStat,
+	checkAndAddMissingStat: checkAndAddMissingStat,
 };
