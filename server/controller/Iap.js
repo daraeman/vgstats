@@ -2,20 +2,26 @@ const Iap = require( "../model/Iap" );
 const IapStat = require( "../model/IapStat" );
 const ImageController = require( "../controller/Image" );
 
+const get = function( data ) {
+	return Iap.findOne( { id: data.productID } );
+};
+
+const create = function( data ) {
+	return Iap.create({
+		type: data.type,
+		id: data.productID,
+	});
+};
+
 const getOrCreate = function( data ) {
 	return new Promise( ( resolve, reject ) => {
 
-		Iap.findOne( { id: data.productID } )
+		get( data )
 			.then( ( iap ) => {
-				if ( ! iap ) {
-					return Iap.create({
-						type: data.type,
-						id: data.productID,
-					});
-				}
-				else {
+				if ( ! iap )
+					return create( data );
+				else
 					return iap;
-				}
 			})
 			.then( ( iap ) => {
 				if ( ! iap )
@@ -28,8 +34,11 @@ const getOrCreate = function( data ) {
 	});
 };
 
-const createStat = function( data, feed ) {
+const createStat = function( data, feed, date ) {
+
 	return new Promise( ( resolve, reject ) => {
+
+		let this_image;
 		getOrCreate( data )
 			.then( ( iap ) => {
 
@@ -37,39 +46,42 @@ const createStat = function( data, feed ) {
 					.then( ( image ) => {
 
 						if ( ! image )
-							throw new Error( "Failed to getOrCreate [%s]", data.image );
+							throw new Error( "Failed to getOrCreate image [%s]", data.image );
 
-						IapStat.findOne({
-							id: iap._id,
+						this_image = image;
+
+						return IapStat.findOne({
+							iap: iap._id,
 							feed: feed._id,
-						}).sort({ date: "desc" })
-							.then( ( stat ) => {
-								if (
-									! stat ||
-									stat.amount !== data.amount ||
-									stat.image !== image._id ||
-									stat.enabled !== data.enabled ||
-									stat.USD !== data.priceAnalyticsUSD ||
-									stat.CNY !== data.priceGiantCNY
-								) {
-									return IapStat.create({
-										id: iap._id,
-										date: new Date(),
-										amount: data.amount,
-										image: image._id,
-										enabled: data.enabled,
-										USD: data.priceAnalyticsUSD,
-										CNY: data.priceGiantCNY,
-										feed: feed._id,
-									});
-								}
-							})
-							.then( () => {
-								return resolve();
-							});
+						}).sort({ date: "desc" });
 					})
-					.then( () => {
-						return resolve();
+					.then( ( stat ) => {
+						if (
+							! stat ||
+							stat.amount !== data.amount ||
+							stat.image.toString() !== this_image._id.toString() ||
+							stat.enabled !== data.enabled ||
+							stat.USD !== data.priceAnalyticsUSD ||
+							stat.CNY !== data.priceGiantCNY ||
+							stat.missing
+						) {
+							return IapStat.create({
+								iap: iap._id,
+								date: date,
+								amount: data.amount,
+								image: this_image._id,
+								enabled: data.enabled,
+								USD: data.priceAnalyticsUSD,
+								CNY: data.priceGiantCNY,
+								feed: feed._id,
+							});
+						}
+						else {
+							return stat;
+						}
+					})
+					.then( ( stat ) => {
+						return resolve( { category: "iap", stats: [ stat ] } );
 					});
 			})
 			.catch( ( error ) => {
@@ -78,7 +90,34 @@ const createStat = function( data, feed ) {
 	});
 };
 
+const checkAndAddMissingStat = function( stat ) {
+
+	return new Promise( ( resolve, reject ) => {
+
+		if ( stat && ! stat.missing ) {
+			
+			IapStat.create({
+				iap: stat.iap,
+				date: new Date(),
+				feed: stat.feed,
+				missing: true,
+			})
+			.then( () => {
+				return resolve();
+			})
+			.catch( ( error ) => {
+				return reject( error );
+			});
+		}
+		else {
+			resolve();
+		}
+
+	});
+};
+
 module.exports = {
 	getOrCreate: getOrCreate,
 	createStat: createStat,
+	checkAndAddMissingStat: checkAndAddMissingStat,
 };

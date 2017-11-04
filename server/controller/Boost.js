@@ -1,22 +1,29 @@
 const Boost = require( "../model/Boost" );
 const Stat = require( "../model/Stat" );
+
+const get = function( data ) {
+	return Boost.findOne( { title: data.title } );
+};
+
+const create = function( data ) {
+	let boost = new Boost({
+		title: data.title,
+		giftable: data.giftable,
+	});
+	if ( typeof data.boost_amount !== "undefined" )
+		boost.amount = data.boost_amount;
+	return boost.save();
+};
+
 const getOrCreate = function( data ) {
 	return new Promise( ( resolve, reject) => {
 		
-		Boost.findOne( { title: data.title } )
+		get( data )
 			.then( ( boost ) => {
-				if ( ! boost ) {
-					let boost = new Boost({
-						title: data.title,
-						giftable: data.giftable,
-					});
-					if ( typeof data.boost_amount !== "undefined" )
-						boost.amount = data.boost_amount;
-					return boost.save();
-				}
-				else {
+				if ( ! boost )
+					return create( data );
+				else
 					return boost;
-				}
 			})
 			.then( ( boost ) => {
 				if ( ! boost )
@@ -29,9 +36,11 @@ const getOrCreate = function( data ) {
 	});
 };
 
-const createStat = function( data, feed ) {
-	return new Promise( ( resolve, reject) => {
+const createStat = function( data, feed, date ) {
+	
+	return new Promise( ( resolve, reject ) => {
 
+		let stats = [];
 		getOrCreate( data )
 			.then( ( boost ) => {
 
@@ -54,16 +63,20 @@ const createStat = function( data, feed ) {
 								return Stat.create({
 									id: sku.id,
 									currency: currency,
-									date: new Date(),
+									date: date,
 									amount: amount,
 									boost: boost._id,
 									feed: feed._id,
 								});
 							}
+							else {
+								return stat;
+							}
 						})
-						.then( () => {
+						.then( ( stat ) => {
+							stats.push( stat );
 							if ( --remaining === 0 )
-								return resolve();
+								return resolve( { category: "boost", stats: stats } );
 						});
 				});
 			})
@@ -74,7 +87,36 @@ const createStat = function( data, feed ) {
 	});
 };
 
+const checkAndAddMissingStat = function( stat ) {
+
+	return new Promise( ( resolve, reject ) => {
+
+		if ( stat && ! stat.missing ) {
+
+			Stat.create({
+				id: stat.id,
+				currency: stat.currency,
+				date: new Date(),
+				boost: stat.boost,
+				feed: stat.feed,
+				missing: true,
+			})
+			.then( () => {
+				return resolve();
+			})
+			.catch( ( error ) => {
+				return reject( error );
+			});
+		}
+		else {
+			resolve();
+		}
+
+	});
+};
+
 module.exports = {
 	getOrCreate: getOrCreate,
 	createStat: createStat,
+	checkAndAddMissingStat: checkAndAddMissingStat,
 };

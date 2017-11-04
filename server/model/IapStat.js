@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const ObjectId = mongoose.Schema.Types.ObjectId;
 
 const IapStatSchema = new Schema({
-	IapId: { type: ObjectId },
+	iap: { type: ObjectId },
 	date: { type: Date },
 	amount: { type: Number },
 	image: { type: ObjectId },
@@ -11,6 +11,7 @@ const IapStatSchema = new Schema({
 	USD: { type: Number },
 	CNY: { type: Number },
 	feed: { type: ObjectId },
+	missing: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model( "IapStat", IapStatSchema );

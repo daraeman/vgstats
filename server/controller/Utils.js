@@ -1,13 +1,14 @@
 const fs = require( "fs.promised" );
 
 const loop = function( callback, delay ) {
-	
+
 	callback().then( () => {
+
 		setTimeout( () => {
 			loop( callback, delay );
 		}, delay );
-	});
 
+	});
 };
 
 const openLog = function( logfile ) {
@@ -18,7 +19,12 @@ const openLog = function( logfile ) {
 	});
 };
 
+const getCurrencies = function() {
+	return [ "gold", "silver", "opal" ];
+};
+
 module.exports = {
 	loop: loop,
 	openLog: openLog,
+	getCurrencies: getCurrencies,
 };

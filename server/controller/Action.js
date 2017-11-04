@@ -1,15 +1,21 @@
 const Action = require( "../model/Action" );
 const Stat = require( "../model/Stat" );
 
-const getOrCreate = function( data ) {
-	return new Promise( ( resolve, reject) => {
+const get = function( data ) {
+	return Action.findOne( { action: data.action } );
+};
 
-		Action.findOne( { action: data.action } )
+const create = function( data ) {
+	return Action.create({ action: data.action });
+};
+
+const getOrCreate = function( data ) {
+	return new Promise( ( resolve, reject ) => {
+
+		get( data )
 			.then( ( action ) => {
 				if ( ! action ) {
-					return Action.create({
-						action: data.action,
-					});
+					return create( data );
 				}
 				else {
 					return action;
@@ -26,9 +32,11 @@ const getOrCreate = function( data ) {
 	});
 };
 
-const createStat = function( data, feed ) {
-	return new Promise( ( resolve, reject) => {
+const createStat = function( data, feed, date ) {
+	
+	return new Promise( ( resolve, reject ) => {
 
+		let stats = [];
 		getOrCreate( data )
 			.then( ( action ) => {
 
@@ -51,16 +59,20 @@ const createStat = function( data, feed ) {
 								return Stat.create({
 									id: sku.id,
 									currency: currency,
-									date: new Date(),
+									date: date,
 									amount: amount,
 									action: action._id,
 									feed: feed._id,
 								});
 							}
+							else {
+								return stat;
+							}
 						})
-						.then( () => {
+						.then( ( stat ) => {
+							stats.push( stat );
 							if ( --remaining === 0 )
-								return resolve();
+								return resolve( { category: "action", stats: stats } );
 						});
 				});
 			})
@@ -71,7 +83,36 @@ const createStat = function( data, feed ) {
 	});
 };
 
+const checkAndAddMissingStat = function( stat ) {
+
+	return new Promise( ( resolve, reject ) => {
+
+		if ( stat && ! stat.missing ) {
+			
+			Stat.create({
+				id: stat.id,
+				currency: stat.currency,
+				date: new Date(),
+				action: stat.action,
+				feed: stat.feed,
+				missing: true,
+			})
+			.then( () => {
+				return resolve();
+			})
+			.catch( ( error ) => {
+				return reject( error );
+			});
+		}
+		else {
+			resolve();
+		}
+
+	});
+};
+
 module.exports = {
 	getOrCreate: getOrCreate,
 	createStat: createStat,
+	checkAndAddMissingStat: checkAndAddMissingStat,
 };

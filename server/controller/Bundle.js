@@ -1,19 +1,23 @@
 const Bundle = require( "../model/Bundle" );
 const Stat = require( "../model/Stat" );
 
+const get = function( data ) {
+	return Bundle.findOne( { symbol: data.symbol } );
+};
+
+const create = function( data ) {
+	return Bundle.create({ symbol: data.symbol });
+};
+
 const getOrCreate = function( data ) {
 	return new Promise( ( resolve, reject) => {
 		
-		Bundle.findOne( { symbol: data.symbol } )
+		get( data )
 			.then( ( bundle ) => {
-				if ( ! bundle ) {
-					return Bundle.create({
-						symbol: data.symbol,
-					});
-				}
-				else {
+				if ( ! bundle )
+					return create( data );
+				else
 					return bundle;
-				}
 			})
 			.then( ( bundle ) => {
 				if ( ! bundle )
@@ -26,9 +30,11 @@ const getOrCreate = function( data ) {
 	});
 };
 
-const createStat = function( data, feed ) {
-	return new Promise( ( resolve, reject) => {
+const createStat = function( data, feed, date ) {
+	
+	return new Promise( ( resolve, reject ) => {
 
+		let stats = [];
 		getOrCreate( data )
 			.then( ( bundle ) => {
 
@@ -51,16 +57,20 @@ const createStat = function( data, feed ) {
 								return Stat.create({
 									id: sku.id,
 									currency: currency,
-									date: new Date(),
+									date: date,
 									amount: amount,
 									bundle: bundle._id,
 									feed: feed._id,
 								});
 							}
+							else {
+								return stat;
+							}
 						})
-						.then( () => {
+						.then( ( stat ) => {
+							stats.push( stat );
 							if ( --remaining === 0 )
-								return resolve();
+								return resolve( { category: "bundle", stats: stats } );
 						});
 				});
 			})
@@ -71,7 +81,36 @@ const createStat = function( data, feed ) {
 	});
 };
 
+const checkAndAddMissingStat = function( stat ) {
+
+	return new Promise( ( resolve, reject ) => {
+
+		if ( stat && ! stat.missing ) {
+			
+			Stat.create({
+				id: stat.id,
+				currency: stat.currency,
+				date: new Date(),
+				bundle: stat.bundle,
+				feed: stat.feed,
+				missing: true,
+			})
+			.then( () => {
+				return resolve();
+			})
+			.catch( ( error ) => {
+				return reject( error );
+			});
+		}
+		else {
+			resolve();
+		}
+
+	});
+};
+
 module.exports = {
 	getOrCreate: getOrCreate,
 	createStat: createStat,
+	checkAndAddMissingStat: checkAndAddMissingStat,
 };
