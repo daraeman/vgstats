@@ -40,6 +40,7 @@ export default class Hero extends React.Component {
 			.rangeRound( [ height, 0 ] )
 
 		let line = d3.line()
+			.defined( function( d ) { return ( d.value !== false ); })
 			.x( function( d ) { return x( d.date ); })
 			.y( function( d ) { return y( d.value ); })
 
@@ -64,14 +65,18 @@ export default class Hero extends React.Component {
 
 		data.forEach( ( d, index ) => {
 
+			if ( d.missing )
+				d.value = false;
+
 			let this_data = [ d ]
 			let color = "blue"
 
 			// if this is the last value, extend to the current date
 			if ( index === ( data.length - 1 ) ) {
+				console.log( d )
 				this_data.push({
 					date: new Date(),
-					value: d.value
+					value: ( d.missing ) ? false : d.value,
 				})
 				color = "red"
 				console.log( this_data )
@@ -80,9 +85,11 @@ export default class Hero extends React.Component {
 			else {
 				this_data.push({
 					date: data[ index + 1 ].date.setSeconds( data[ index + 1 ].date.getSeconds() - 1 ),
-					value: d.value
+					value: ( d.missing ) ? false : d.value,
 				})
 			}
+
+			console.log( "this_data", this_data )
 
 			g.append( "path" )
 				.datum( this_data )

@@ -12,13 +12,27 @@ function createSavePath( path ) {
 }
 
 const retrieveFeed = function( feed ) {
+
 	return new Promise( ( resolve, reject ) => {
 
+		let date = new Date();
+
+		console.log( "path", createSavePath( feed.path ) + "/" + "1509817749960.json" )
+
+		fs.readFile( createSavePath( feed.path ) + "/" + "1509817749960.json" )
+			.then( ( body ) => {
+
+				return resolve( body );
+			})
+			.catch( ( error ) => {
+				return reject( error );
+			});
+/*	
 		let json;
 		request( feed.url )
 			.then( ( body ) => {
 				json = body;
-				return fs.writeFile( createSavePath( feed.path ) + "/" + +new Date() + ".json", body );
+				return fs.writeFile( createSavePath( feed.path ) + "/" + date.getTime() + ".json", body );
 			})
 			.then( () => {
 				feed.fetched = new Date();
@@ -30,10 +44,11 @@ const retrieveFeed = function( feed ) {
 			})
 			.catch( ( error ) => {
 				feed.error = true;
-				feed.fetch_errors.push( { date: new Date(), error: error } );
+				feed.fetch_errors.push( { date: date, error: error } );
 				feed.save();
 				return reject( error );
 			});
+*/
 	});
 };
 
@@ -60,7 +75,9 @@ const getAll = function() {
 };
 
 const add = function( url, language, region, platform, type, enabled, path ) {
+
 	return new Promise( ( resolve, reject ) => {
+
 		Feed.findOne({ url: url })
 			.then( ( feed ) => {
 

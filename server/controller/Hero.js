@@ -3,24 +3,30 @@ const Stat = require( "../model/Stat" );
 const ImageController = require( "./Image" );
 const VideoController = require( "./Video" );
 
+const get = function( data ) {
+	return Hero.findOne( { title: data.title } );
+};
+
+const create = function( data ) {
+	return Hero.create({
+		title: data.title,
+		symbol: data.symbol,
+		lore: data.lore,
+		video: data.video,
+		vgf: data.vgf,
+		epoch: data.newEpoch,
+	});
+};
+
 const getOrCreate = function( data ) {
 	return new Promise( ( resolve, reject) => {
 		
-		Hero.findOne( { title: data.title } )
+		get( data )
 			.then( ( hero ) => {
-				if ( ! hero ) {
-					return Hero.create({
-						title: data.title,
-						symbol: data.symbol,
-						lore: data.lore,
-						video: data.video,
-						vgf: data.vgf,
-						epoch: data.newEpoch,
-					});
-				}
-				else {
+				if ( ! hero )
+					return create( data );
+				else
 					return hero;
-				}
 			})
 			.then( ( hero ) => {
 
@@ -57,9 +63,11 @@ const getOrCreate = function( data ) {
 	});
 };
 
-const createStat = function( data, feed ) {
+const createStat = function( data, feed, date ) {
+
 	return new Promise( ( resolve, reject ) => {
 
+		let stats = [];
 		getOrCreate( data )
 			.then( ( hero ) => {
 
@@ -76,13 +84,20 @@ const createStat = function( data, feed ) {
 						feed: feed._id,
 					}).sort({ date: "desc" })
 						.then( ( stat ) => {
-							
-							if ( ! stat || stat.amount !== amount ) {
+
+							if (
+								! stat ||
+								stat.missing || 
+								(
+									stat.amount !== amount &&
+									! stat.missing
+								)
+							) {
 
 								let stat = new Stat({
 									id: sku.id,
 									currency: currency,
-									date: new Date(),
+									date: date,
 									amount: amount,
 									hero: hero._id,
 									feed: feed._id,
@@ -93,10 +108,14 @@ const createStat = function( data, feed ) {
 
 								return stat.save();
 							}
+							else {
+								return stat;
+							}
 						})
-						.then( () => {
+						.then( ( stat ) => {
+							stats.push( stat );
 							if ( --remaining === 0 )
-								return resolve();
+								return resolve( { category: "hero", stats: stats } );
 						});
 				});
 			})
@@ -107,7 +126,36 @@ const createStat = function( data, feed ) {
 	});
 };
 
+const checkAndAddMissingStat = function( stat ) {
+
+	return new Promise( ( resolve, reject ) => {
+
+		if ( stat && ! stat.missing ) {
+			
+			Stat.create({
+				id: stat.id,
+				currency: stat.currency,
+				date: new Date(),
+				hero: stat.hero,
+				feed: stat.feed,
+				missing: true,
+			})
+			.then( () => {
+				return resolve();
+			})
+			.catch( ( error ) => {
+				return reject( error );
+			});
+		}
+		else {
+			resolve();
+		}
+
+	});
+};
+
 module.exports = {
 	getOrCreate: getOrCreate,
 	createStat: createStat,
+	checkAndAddMissingStat: checkAndAddMissingStat,
 };
