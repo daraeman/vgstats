@@ -18,6 +18,7 @@ const hero_data = function( request, response ) {
 					currency: stat.currency,
 					date: stat.date,
 					value: stat.amount,
+					missing: stat.missing,
 				}; });
 			}
 			return response.json( data );
