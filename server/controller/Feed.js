@@ -16,10 +16,10 @@ const retrieveFeed = function( feed ) {
 	return new Promise( ( resolve, reject ) => {
 
 		let date = new Date();
-/*
-		console.log( "path", createSavePath( feed.path ) + "/" + "1509133040808.json" )
 
-		fs.readFile( createSavePath( feed.path ) + "/" + "1509133040808.json" )
+		console.log( "path", createSavePath( feed.path ) + "/" + "1509817749960.json" )
+
+		fs.readFile( createSavePath( feed.path ) + "/" + "1509817749960.json" )
 			.then( ( body ) => {
 
 				return resolve( body );
@@ -27,7 +27,7 @@ const retrieveFeed = function( feed ) {
 			.catch( ( error ) => {
 				return reject( error );
 			});
-*/		
+/*	
 		let json;
 		request( feed.url )
 			.then( ( body ) => {
@@ -48,6 +48,7 @@ const retrieveFeed = function( feed ) {
 				feed.save();
 				return reject( error );
 			});
+*/
 	});
 };
 

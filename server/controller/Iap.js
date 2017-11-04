@@ -56,14 +56,22 @@ const createStat = function( data, feed, date ) {
 						}).sort({ date: "desc" });
 					})
 					.then( ( stat ) => {
+						// create stat if it doesn't exist,
+						// or if the values have changed (ignoring missing ),
+						// or if the stat was missing but is back
+						console.log( stat )
 						if (
 							! stat ||
-							stat.amount !== data.amount ||
-							stat.image.toString() !== this_image._id.toString() ||
-							stat.enabled !== data.enabled ||
-							stat.USD !== data.priceAnalyticsUSD ||
-							stat.CNY !== data.priceGiantCNY ||
-							stat.missing
+							stat.missing ||
+							(
+								(
+									stat.amount !== data.amount ||
+									stat.image.toString() !== this_image._id.toString() ||
+									stat.enabled !== data.enabled ||
+									stat.USD !== data.priceAnalyticsUSD ||
+									stat.CNY !== data.priceGiantCNY
+								) && ! stat.missing
+							)
 						) {
 							return IapStat.create({
 								iap: iap._id,
@@ -116,8 +124,23 @@ const checkAndAddMissingStat = function( stat ) {
 	});
 };
 
+const getAllStatsLatest = function( feed ) {
+	return IapStat.aggregate([
+		{ $match: { feed: feed._id } },
+		{ $sort: { date: -1 } },
+		{ $group: {
+			_id: "$iap",
+			last_date: { $first: "$date" },
+			missing: { $first: "$missing" },
+			feed: { $first: "$feed" },
+			iap: { $first: "$iap" },
+		}},
+	]);
+}
+
 module.exports = {
 	getOrCreate: getOrCreate,
 	createStat: createStat,
 	checkAndAddMissingStat: checkAndAddMissingStat,
+	getAllStatsLatest: getAllStatsLatest,
 };

@@ -4,11 +4,10 @@ const BoostController = require( "../controller/Boost" );
 const BundleController = require( "../controller/Bundle" );
 const HeroController = require( "../controller/Hero" );
 const IapController = require( "../controller/Iap" );
+const StatController = require( "../controller/Stat" );
 const SkinController = require( "../controller/Skin" );
 const FeedController = require( "../controller/Feed" );
 const PromiseEndError = require( "../controller/PromiseEndError" );
-const Stat = require( "../model/Stat" );
-const IapStat = require( "../model/IapStat" );
 require( "dotenv" ).config();
 const Queue = require( "simple-promise-queue" );
 let queue = new Queue({
@@ -19,7 +18,8 @@ const Utils = require( __dirname + "/../controller/Utils" );
 const log_path = __dirname + "/../../log/update_markets";
 let logStream = Utils.openLog( log_path );
 function log( msg ) {
-	logStream.write( "["+ new Date() +"] " + msg + "\n" );
+	console.log( msg )
+	//logStream.write( "["+ new Date() +"] " + msg + "\n" );
 }
 
 process.on( "uncaughtException", ( error ) => {
@@ -34,6 +34,8 @@ const request_delay = ( 1000 * 10 ); // don't hit servers more thatn once every 
 function callback() {
 
 	return new Promise( ( resolve, reject ) => {
+
+		let date = new Date();
 
 		let this_feeds;
 		FeedController.getFeedToFetchAll( "market" )
@@ -52,12 +54,12 @@ function callback() {
 
 						// if our request is quicker than request_delay,
 						// timeout for the difference of the time
-						let start_date = +new Date();
-						FeedController.retrieveFeed( feed )
+						let start_time = +new Date();
+						FeedController.retrieveFeed( feed, date )
 							.then( ( json ) => {
 								feed.json = json;
-								let end_date = +new Date();
-								let diff = ( end_date - start_date );
+								let end_time = +new Date();
+								let diff = ( end_time - start_time );
 								let delay = ( diff >= request_delay ) ? 0 : ( request_delay - diff );
 								setTimeout( () => {
 									resolve();
@@ -85,8 +87,6 @@ function callback() {
 					//if ( data.rendered != feed.change_id ) {
 					if ( true ) {
 
-						let date = new Date();
-
 						function removeStat( category, stat_id ) {
 							
 							if ( category === "iap" ) {
@@ -107,128 +107,112 @@ function callback() {
 						// by process of elimination we can get items that have been dropped
 						let all_stats;
 						let all_iap_stats;
-						Stat.aggregate([
-							{ $match: { feed: feed._id } },
-							{ $sort: { date: -1 } },
-							{ $group: {
-								_id: "$id",
-								last_date: { $first: "$date" },
-								missing: { $first: "$missing" }
-							}},
-						])
-						.then( ( response ) => {
+						StatController.getAllStatsLatest( feed )
+							.then( ( response ) => {
 
-							all_stats = response;
+								all_stats = response;
 
-							return IapStat.aggregate([
-								{ $match: { feed: feed._id } },
-								{ $sort: { date: -1 } },
-								{ $group: {
-									_id: "$iap",
-									last_date: { $first: "$date" },
-									missing: { $first: "$missing" }
-								}},
-							]);
-						})
-						.then( ( response ) => {
+								return IapController.getAllStatsLatest( feed );
+							})
+							.then( ( response ) => {
 
-							all_iap_stats = response;
+								all_iap_stats = response;
 
-							feed.change_id = data.rendered;
-							feed.save();
+								feed.change_id = data.rendered;
+								feed.save();
 
-							let items_remaining = data.items.length;
-							let item_jobs = [];
+								let items_remaining = data.items.length;
+								let item_jobs = [];
 
-							data.items.forEach( ( item ) => {
+								data.items.forEach( ( item ) => {
 
-								let item_promise;
-								if ( item.category === "iap" )
-									item_promise = IapController.createStat;
-								else if ( item.category === "socialActions" )
-									item_promise = ActionController.createStat;
-								else if ( item.category === "boost" )
-									item_promise = BoostController.createStat;
-								else if ( item.category === "bundle" )
-									item_promise = BundleController.createStat;
-								else if ( item.category === "hero" )
-									item_promise = HeroController.createStat;
-								else if ( item.category === "skin" )
-									item_promise = SkinController.createStat;
-								else {
-									log( "Unknown item", JSON.stringify( item ) );
+									let item_promise;
+									if ( item.category === "iap" )
+										item_promise = IapController.createStat;
+									else if ( item.category === "socialActions" )
+										item_promise = ActionController.createStat;
+									else if ( item.category === "boost" )
+										item_promise = BoostController.createStat;
+									else if ( item.category === "bundle" )
+										item_promise = BundleController.createStat;
+									else if ( item.category === "hero" )
+										item_promise = HeroController.createStat;
+									else if ( item.category === "skin" )
+										item_promise = SkinController.createStat;
+									else {
+										log( "Unknown item", JSON.stringify( item ) );
 
-									if ( --items_remaining === 0 ) {
-										return resolve();
+										if ( --items_remaining === 0 ) {
+											return resolve();
+										}
+										else
+											return;
 									}
-									else
-										return;
-								}
 
-								item_jobs.push(
-									new Promise( ( resolve, reject ) => {
-										item_promise( item, feed, date )
-											.then( ( response ) => {
-												response.stats.forEach( ( stat ) => {
-													let id = stat.iap || stat.id;
-													removeStat( response.category, id );
+									item_jobs.push(
+										new Promise( ( resolve, reject ) => {
+											item_promise( item, feed, date )
+												.then( ( response ) => {
+													response.stats.forEach( ( stat ) => {
+														let id = stat.iap || stat.id;
+														removeStat( response.category, id );
+													});
+													return resolve();
+												}).catch( ( error ) => {
+													log( error.toString() );
+													return reject( error );
 												});
-												return resolve();
-											}).catch( ( error ) => {
-												log( error.toString() );
-												return reject( error );
-											});
-									 })
-								);
-							});
-
-							Promise.all( item_jobs )
-								.then( () => {
-
-									let missing_jobs = [];
-
-									if ( all_iap_stats.length ) {
-
-										all_iap_stats.forEach( ( iap ) => {
-											missing_jobs.push( IapController.checkAndAddMissingStat( iap ) );
-										});
-									}
-
-									if ( all_stats.length ) {
-
-										all_stats.forEach( ( stat ) => {
-
-											if ( stat.action )
-												missing_jobs.push( ActionController.checkAndAddMissingStat( stat ) );
-											else if ( stat.bundle )
-												missing_jobs.push( BundleController.checkAndAddMissingStat( stat ) );
-											else if ( stat.boost )
-												missing_jobs.push( BoostController.checkAndAddMissingStat( stat ) );
-											else if ( stat.hero )
-												missing_jobs.push( HeroController.checkAndAddMissingStat( stat ) );
-											else if ( stat.skin )
-												missing_jobs.push( SkinController.checkAndAddMissingStat( stat ) );
-
-										});
-									}
-
-									Promise.all( missing_jobs )
-										.then( () => {
-											if ( --feeds_remaining === 0 ) {
-												return resolve();
-											}
-										})
-										.catch( ( error ) => {
-											log( error.toString() );
-											throw error;
-										});
-								})
-								.catch( ( error ) => {
-									log( error.toString() );
-									throw error;
+										 })
+									);
 								});
 
-						});
+								Promise.all( item_jobs )
+									.then( () => {
+
+										let missing_jobs = [];
+
+										if ( all_iap_stats.length ) {
+
+											all_iap_stats.forEach( ( iap ) => {
+												missing_jobs.push( IapController.checkAndAddMissingStat( iap ) );
+											});
+										}
+
+										if ( all_stats.length ) {
+
+											all_stats.forEach( ( stat ) => {
+
+												if ( stat.action )
+													missing_jobs.push( ActionController.checkAndAddMissingStat( stat ) );
+												else if ( stat.bundle )
+													missing_jobs.push( BundleController.checkAndAddMissingStat( stat ) );
+												else if ( stat.boost )
+													missing_jobs.push( BoostController.checkAndAddMissingStat( stat ) );
+												else if ( stat.hero )
+													missing_jobs.push( HeroController.checkAndAddMissingStat( stat ) );
+												else if ( stat.skin )
+													missing_jobs.push( SkinController.checkAndAddMissingStat( stat ) );
+
+											});
+										}
+
+										Promise.all( missing_jobs )
+											.then( () => {
+												if ( --feeds_remaining === 0 ) {
+													return resolve();
+												}
+											})
+											.catch( ( error ) => {
+												log( error.toString() );
+												throw error;
+											});
+									})
+									.catch( ( error ) => {
+										log( error.toString() );
+										throw error;
+									});
+
+							});
 
 					}
 					else {
