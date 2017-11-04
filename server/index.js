@@ -9,6 +9,11 @@ let apps = {
 		name: "update_markets",
 		pidfile: base + "/pids/update_markets.pid",
 	},
+	web_server: {
+		main: base + "/server/app/web_server.js",
+		name: "web_server",
+		pidfile: base + "/pids/web_server.pid",
+	},
 };
 
 Object.keys( apps ).forEach( ( name ) => {
