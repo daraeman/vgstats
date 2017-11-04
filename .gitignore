@@ -7,3 +7,4 @@ data/database/*
 log/*
 pids/*
 !.gitkeep
+package-lock.json
