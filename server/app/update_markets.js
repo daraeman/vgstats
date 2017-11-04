@@ -18,8 +18,7 @@ const Utils = require( __dirname + "/../controller/Utils" );
 const log_path = __dirname + "/../../log/update_markets";
 let logStream = Utils.openLog( log_path );
 function log( msg ) {
-	console.log( msg );
-	//logStream.write( "["+ new Date() +"] " + msg + "\n" );
+	logStream.write( "["+ new Date() +"] " + msg + "\n" );
 }
 
 process.on( "uncaughtException", ( error ) => {
