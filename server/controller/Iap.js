@@ -129,13 +129,10 @@ const getAllStatsLatest = function( feed ) {
 		{ $sort: { date: -1 } },
 		{ $group: {
 			_id: "$iap",
-			last_date: { $first: "$date" },
-			missing: { $first: "$missing" },
-			feed: { $first: "$feed" },
-			iap: { $first: "$iap" },
+			stat: { $first: "$$CURRENT" },
 		}},
 	]);
-}
+};
 
 module.exports = {
 	getOrCreate: getOrCreate,

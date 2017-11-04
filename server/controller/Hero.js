@@ -64,7 +64,7 @@ const getOrCreate = function( data ) {
 };
 
 const createStat = function( data, feed, date ) {
-	
+
 	return new Promise( ( resolve, reject ) => {
 
 		let stats = [];
@@ -84,8 +84,15 @@ const createStat = function( data, feed, date ) {
 						feed: feed._id,
 					}).sort({ date: "desc" })
 						.then( ( stat ) => {
-							
-							if ( ! stat || stat.amount !== amount ) {
+
+							if (
+								! stat ||
+								stat.missing || 
+								(
+									stat.amount !== amount &&
+									! stat.missing
+								)
+							) {
 
 								let stat = new Stat({
 									id: sku.id,

@@ -52,7 +52,14 @@ const createStat = function( data, feed, date ) {
 					}).sort({ date: "desc" })
 						.then( ( stat ) => {
 
-							if ( ! stat || stat.amount !== amount ) {
+							if (
+								! stat ||
+								stat.missing || 
+								(
+									stat.amount !== amount &&
+									! stat.missing
+								)
+							) {
 								
 								return Stat.create({
 									id: sku.id,

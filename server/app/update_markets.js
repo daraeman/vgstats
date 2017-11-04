@@ -18,7 +18,7 @@ const Utils = require( __dirname + "/../controller/Utils" );
 const log_path = __dirname + "/../../log/update_markets";
 let logStream = Utils.openLog( log_path );
 function log( msg ) {
-	console.log( msg )
+	console.log( msg );
 	//logStream.write( "["+ new Date() +"] " + msg + "\n" );
 }
 
@@ -173,8 +173,8 @@ function callback() {
 
 										if ( all_iap_stats.length ) {
 
-											all_iap_stats.forEach( ( iap ) => {
-												missing_jobs.push( IapController.checkAndAddMissingStat( iap ) );
+											all_iap_stats.forEach( ( iap_stat ) => {
+												missing_jobs.push( IapController.checkAndAddMissingStat( iap_stat.stat ) );
 											});
 										}
 
@@ -182,16 +182,18 @@ function callback() {
 
 											all_stats.forEach( ( stat ) => {
 
-												if ( stat.action )
-													missing_jobs.push( ActionController.checkAndAddMissingStat( stat ) );
-												else if ( stat.bundle )
-													missing_jobs.push( BundleController.checkAndAddMissingStat( stat ) );
-												else if ( stat.boost )
-													missing_jobs.push( BoostController.checkAndAddMissingStat( stat ) );
-												else if ( stat.hero )
-													missing_jobs.push( HeroController.checkAndAddMissingStat( stat ) );
-												else if ( stat.skin )
-													missing_jobs.push( SkinController.checkAndAddMissingStat( stat ) );
+												let s = stat.stat;
+												
+												if ( s.action )
+													missing_jobs.push( ActionController.checkAndAddMissingStat( s ) );
+												else if ( s.bundle )
+													missing_jobs.push( BundleController.checkAndAddMissingStat( s ) );
+												else if ( s.boost )
+													missing_jobs.push( BoostController.checkAndAddMissingStat( s ) );
+												else if ( s.hero )
+													missing_jobs.push( HeroController.checkAndAddMissingStat( s ) );
+												else if ( s.skin )
+													missing_jobs.push( SkinController.checkAndAddMissingStat( s ) );
 
 											});
 										}
