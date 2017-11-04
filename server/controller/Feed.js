@@ -17,17 +17,6 @@ const retrieveFeed = function( feed ) {
 
 		let date = new Date();
 
-		console.log( "path", createSavePath( feed.path ) + "/" + "1509817749960.json" )
-
-		fs.readFile( createSavePath( feed.path ) + "/" + "1509817749960.json" )
-			.then( ( body ) => {
-
-				return resolve( body );
-			})
-			.catch( ( error ) => {
-				return reject( error );
-			});
-/*	
 		let json;
 		request( feed.url )
 			.then( ( body ) => {
@@ -48,7 +37,6 @@ const retrieveFeed = function( feed ) {
 				feed.save();
 				return reject( error );
 			});
-*/
 	});
 };
 
