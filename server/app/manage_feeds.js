@@ -19,6 +19,7 @@ function command( message ) {
 		console.log( " - delete URL" );
 		console.log( " - disable URL" );
 		console.log( " - enable URL" );
+		console.log( " - exit" );
 		console.log( "-----------------------------------------" );
 	}
 	message = message || "Enter Command: ";
