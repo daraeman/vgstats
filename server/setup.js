@@ -39,7 +39,7 @@ fs.access( mongo_conf, fs.constants.F_OK | fs.constants.W_OK )
 	})
 	.catch( () => {
 		// create environment file from the sample
-		fs.createReadStream( env_template ).pipe( fs.createWriteStream( env_file_dev ) );
+		fs.createReadStream( env_template ).pipe( fs.createWriteStream( env_file ) );
 		console.log( "Blank Environment File Created" );
 	})
 	.catch( ( error ) => {
