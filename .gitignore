@@ -8,3 +8,4 @@ log/*
 pids/*
 !.gitkeep
 package-lock.json
+client/build/bundle.js

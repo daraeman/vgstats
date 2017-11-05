@@ -19,6 +19,8 @@ const hero_view = require( "../controller/HeroView" );
 const skins_view = require( "../controller/SkinsView" );
 const skin_view = require( "../controller/SkinView" );
 
+console.log( process.env.NODE_ENV )
+
 process.on( "uncaughtException", ( error ) => {
     log( error.stack );
 });

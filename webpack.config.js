@@ -30,6 +30,7 @@ module.exports = {
 				test: /\.jsx?$/,
 				loader: "babel-loader",
 				query: {
+					compact: true,
 					presets: [ "react", "es2015", "stage-0" ],
 					plugins: [ "react-html-attrs", "transform-class-properties", "transform-decorators-legacy" ],
 				},
