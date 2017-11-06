@@ -1,4 +1,3 @@
-process.env.BASE = process.cwd();
 const express = require( "express" );
 const app = express();
 //const session = require( "express-session" );
@@ -11,15 +10,13 @@ const log_path = __dirname + "/../../log/web_server";
 const Utils = require( "../controller/Utils" );
 const logStream = Utils.openLog( log_path );
 function log( msg ) {
-	console.log( msg )
-	//logStream.write( "["+ new Date() +"] " + msg + "\n" );
+	logStream.write( "["+ new Date() +"] " + msg + "\n" );
 }
+const path = require( "path" );
 const heroes_view = require( "../controller/HeroesView" );
 const hero_view = require( "../controller/HeroView" );
 const skins_view = require( "../controller/SkinsView" );
 const skin_view = require( "../controller/SkinView" );
-
-console.log( process.env.NODE_ENV )
 
 process.on( "uncaughtException", ( error ) => {
     log( error.stack );
@@ -34,8 +31,8 @@ app.use( cors( {
 
 app.disable( "x-powered-by" );
 /*
-app.use( "/img", express.static( process.env.BASE + "/server/public/img" ) );
-app.use( "/font", express.static( process.env.BASE + "/server/public/font" ) );
+app.use( "/img", express.static( path.resolve( __dirname + "./public/img" ) );
+app.use( "/font", express.static( path.resolve( __dirname + "./public/font" ) );
 */
 /*
 const MongoDBStore = require( "connect-mongodb-session" )( session );
@@ -67,10 +64,10 @@ app.post( "/api/skin/get", jsonParser, skin_view.skin_data );
 
 if ( process.env.NODE_ENV == "production" ) {
 	app.get( "/bundle.js", ( request, response ) => {
-		response.sendFile( process.env.BASE + "/client/build/bundle.js" );
+		response.sendFile( path.resolve( __dirname +"/../../client/build/bundle.js" ) );
 	});
 	app.get( "/*", ( request, response ) => {
-		response.sendFile( process.env.BASE + "/client/build/index.html" );
+		response.sendFile( path.resolve( __dirname +"/../../client/build/index.html" ) );
 	});
 }
 else {
