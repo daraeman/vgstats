@@ -1,8 +1,26 @@
 const Hero = require( "../model/Hero" );
 const Stat = require( "../model/Stat" );
 
-const hero_data = function( request, response ) {
+module.exports.heroes_list = function( request, response ) {
+	
+	Hero.find( {} )
+		.then( ( heroes ) => {
+			if ( ! heroes || ! heroes.length )
+				throw new Error( "No Heroes Found" );
+			heroes = heroes.map( ( hero ) => {
+				return { name: hero.title };
+			});
+			return response.json( heroes );
+		})
+		.catch( ( error ) => {
+			response.status( 500 ).send( error );
+		});
+};
+
+module.exports.hero_data = function( request, response ) {
+
 	let data = {};
+
 	Hero.findOne( { title: new RegExp( "^" + request.body.name + "$", "i" ) } )
 		.then( ( hero ) => {
 			if ( ! hero )
@@ -26,8 +44,4 @@ const hero_data = function( request, response ) {
 		.catch( ( error ) => {
 			response.status( 500 ).json( { error: error.toString() } );
 		});
-};
-
-module.exports = {
-	hero_data: hero_data,
 };

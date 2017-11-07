@@ -10,6 +10,14 @@ import Heroes from "./components/Heroes"
 import Hero from "./components/Hero"
 import Skins from "./components/Skins"
 import Skin from "./components/Skin"
+import Bundles from "./components/Bundles"
+import Bundle from "./components/Bundle"
+import Iaps from "./components/Iaps"
+import Iap from "./components/Iap"
+import Actions from "./components/Actions"
+import Action from "./components/Action"
+import Boosts from "./components/Boosts"
+import Boost from "./components/Boost"
 
 import store from "./store"
 
@@ -28,6 +36,14 @@ ReactDOM.render(
 						<Route path="/hero" exact component={ Hero } />
 						<Route path="/skins" exact component={ Skins } />
 						<Route path="/skin/:skinName" exact component={ Skin } />
+						<Route path="/bundles" exact component={ Bundles } />
+						<Route path="/bundle/:bundleName" exact component={ Bundle } />
+						<Route path="/iaps" exact component={ Iaps } />
+						<Route path="/iap/:iapName" exact component={ Iap } />
+						<Route path="/actions" exact component={ Actions } />
+						<Route path="/action/:actionName" exact component={ Action } />
+						<Route path="/boosts" exact component={ Boosts } />
+						<Route path="/boost/:boostName" exact component={ Boost } />
 					</Switch>
 					<Footer />
 				</div>

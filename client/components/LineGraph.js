@@ -1,6 +1,8 @@
 import React from "react"
 import * as d3 from "d3";
 
+require( "../less/LineGraph.less" )
+
 export default class LineGraph extends React.Component {
 
 	componentWillMount() {

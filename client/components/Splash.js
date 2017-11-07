@@ -7,18 +7,18 @@ export default class Splash extends React.Component {
 	render() {
 
 		let categories = [
-			"Bundles",
-			"Skins",
-			"Heroes",
-			"In-App Purchases",
-			"Boosts",
-			"Actions",
+			{ name: "Bundles", path: "bundles" },
+			{ name: "Skins", path: "skins" },
+			{ name: "Heroes", path: "heroes" },
+			{ name: "In-App Purchases", path: "iaps" },
+			{ name: "Boosts", path: "boosts" },
+			{ name: "Actions", path: "actions" },
 		];
 
-		let categories_html = categories.map( ( category ) => {
+		let categories_html = categories.map( ( category, index ) => {
 			return (
-				<div class="col-md-4">
-					<p><a class="btn btn-primary" href={ "/" + category.toLowerCase() } role="button">{category }</a></p>
+				<div class="col-md-4" key={ index }>
+					<p><a class="btn btn-primary" href={ "/" + category.path } role="button">{ category.name }</a></p>
 				</div>
 			)
 		});

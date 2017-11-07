@@ -52,8 +52,10 @@ module.exports = {
 	},
 	devServer: {
 		contentBase: path.resolve( __dirname, "client/build" ),
-		historyApiFallback: true,
 		host: process.env.FRONTEND_HOST,
 		port: process.env.FRONTEND_PORT,
+		historyApiFallback: {
+			disableDotRule: true,
+		},
 	},
 };

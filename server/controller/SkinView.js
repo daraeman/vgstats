@@ -1,8 +1,26 @@
 const Skin = require( "../model/Skin" );
 const Stat = require( "../model/Stat" );
 
-const skin_data = function( request, response ) {
+module.exports.skins_list = function( request, response ) {
+	
+	Skin.find( { })
+		.then( ( skins ) => {
+			if ( ! skins || ! skins.length )
+				throw new Error( "No Skins Found" );
+			skins = skins.map( ( skin ) => {
+				return { name: skin.symbol };
+			});
+			return response.json( skins );
+		})
+		.catch( ( error ) => {
+			response.status( 500 ).send( error );
+		});
+};
+
+module.exports.skin_data = function( request, response ) {
+
 	let data = {};
+	
 	Skin.findOne( { symbol: new RegExp( "^" + request.body.name + "$", "i" ) } )
 		.then( ( skin ) => {
 			if ( ! skin )
@@ -25,8 +43,4 @@ const skin_data = function( request, response ) {
 		.catch( ( error ) => {
 			response.status( 500 ).json( { error: error.toString() } );
 		});
-};
-
-module.exports = {
-	skin_data: skin_data,
 };
