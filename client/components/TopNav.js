@@ -7,17 +7,17 @@ export default class TopNav extends React.Component {
 	render() {
 
 		let categories = [
-			"Bundles",
-			"Skins",
-			"Heroes",
-			"In-App Purchases",
-			"Boosts",
-			"Actions",
+			{ name: "Bundles", path: "bundles" },
+			{ name: "Skins", path: "skins" },
+			{ name: "Heroes", path: "heroes" },
+			{ name: "In-App Purchases", path: "iaps" },
+			{ name: "Boosts", path: "boosts" },
+			{ name: "Actions", path: "actions" },
 		];
 
 		let categories_html = categories.map( ( category, index ) => {
 			return (
-				<a class="dropdown-item" href={ "/" + category.toLowerCase() } key={ index }>{ category }</a>
+				<a class="dropdown-item" href={ "/" + category.path } key={ index }>{ category.name }</a>
 			)
 		});
 

@@ -13,10 +13,12 @@ function log( msg ) {
 	logStream.write( "["+ new Date() +"] " + msg + "\n" );
 }
 const path = require( "path" );
-const heroes_view = require( "../controller/HeroesView" );
 const hero_view = require( "../controller/HeroView" );
-const skins_view = require( "../controller/SkinsView" );
 const skin_view = require( "../controller/SkinView" );
+const bundle_view = require( "../controller/BundleView" );
+const iap_view = require( "../controller/IapView" );
+const action_view = require( "../controller/ActionView" );
+const boost_view = require( "../controller/BoostView" );
 
 process.on( "uncaughtException", ( error ) => {
     log( error.stack );
@@ -57,10 +59,18 @@ app.use( session({
 }));
 */
 // routes
-app.post( "/api/heroes/get", heroes_view.heroes_list );
+app.post( "/api/heroes/get", hero_view.heroes_list );
 app.post( "/api/hero/get", jsonParser, hero_view.hero_data );
-app.post( "/api/skins/get", skins_view.skins_list );
+app.post( "/api/skins/get", skin_view.skins_list );
 app.post( "/api/skin/get", jsonParser, skin_view.skin_data );
+app.post( "/api/bundles/get", bundle_view.bundles_list );
+app.post( "/api/bundle/get", jsonParser, bundle_view.bundle_data );
+app.post( "/api/iaps/get", iap_view.iaps_list );
+app.post( "/api/iap/get", jsonParser, iap_view.iap_data );
+app.post( "/api/actions/get", action_view.actions_list );
+app.post( "/api/action/get", jsonParser, action_view.action_data );
+app.post( "/api/boosts/get", boost_view.boosts_list );
+app.post( "/api/boost/get", jsonParser, boost_view.boost_data );
 
 if ( process.env.NODE_ENV == "production" ) {
 	app.get( "/bundle.js", ( request, response ) => {
