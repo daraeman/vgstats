@@ -64,6 +64,8 @@ export default class Skin extends React.Component {
 
 		const { skin } = this.props
 
+		console.log( "skin", skin )
+
 		return (
 
 			<main role="main">

@@ -111,7 +111,7 @@ export default class LineGraph extends React.Component {
 		const { data } = this.props
 
 		return (
-			<div class="container" id={ this.state.id }></div>
+			<div class="container LineGraph" id={ this.state.id }></div>
 		)
 	}
 }

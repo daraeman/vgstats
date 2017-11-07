@@ -26,7 +26,7 @@ module.exports.skin_data = function( request, response ) {
 			if ( ! skin )
 				throw new Error( "Skin not found" );
 			data.skin = {
-				name: skin.title,
+				name: skin.symbol,
 			};
 			return Stat.find({ skin: skin._id });
 		})
