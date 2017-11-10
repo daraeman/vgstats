@@ -23,6 +23,8 @@ export default class LineGraph extends React.Component {
 		let name = props.name;
 
 		let graph = d3.select( "#"+ this.state.id );
+		if ( ! graph.select( "svg" ).empty() )
+			return;
 		let svg = graph.append( "svg" );
 
 		let margin = { top: 20, right: 20, bottom: 30, left: 50 };
