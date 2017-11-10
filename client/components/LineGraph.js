@@ -41,8 +41,16 @@ export default class LineGraph extends React.Component {
 			.x( function( d ) { return x( d.date ); })
 			.y( function( d ) { return y( d.value ); });
 
-		x.domain( [ d3.min( data, function( d ) { return d.date; }), new Date() ]);
-		y.domain( d3.extent( data, function( d ) { return d.value; }));
+		// min date is min date, max date is now
+		x.domain( [ d3.min( data, function( d ) { return d.date; } ), new Date() ] );
+		y.domain( d3.extent( data, function( d ) { return d.value; } ) );
+
+		// if there is only one value, center that value
+		if ( y.domain()[0] === y.domain()[1] )
+			y.domain( [ ( y.domain()[0] - 100 ), ( y.domain()[0] + 100 ) ] );
+		// else add asome spacing so the bottom value isn't at the exact bottom
+		else
+			y.domain( [ ( y.domain()[0] - 10 ), y.domain()[1] ] );
 
 		g.append( "g" )
 				.attr( "transform", "translate( 0," + height + " )" )
