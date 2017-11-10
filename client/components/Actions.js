@@ -1,5 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
+import Jumbotron from "./Jumbotron"
 
 import { fetchActions } from "../actions/Actions"
 
@@ -38,9 +39,7 @@ export default class Actions extends React.Component {
 
 			<main role="main">
 
-				<div class="container">
-					<h1 class="">Actions</h1>
-				</div>
+				<Jumbotron title="Actions"></Jumbotron>
 
 				<div class="container">
 					<div class="row">

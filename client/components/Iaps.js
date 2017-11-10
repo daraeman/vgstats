@@ -1,5 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
+import Jumbotron from "./Jumbotron"
 
 import { fetchIaps } from "../actions/Iaps"
 
@@ -38,9 +39,7 @@ export default class Iaps extends React.Component {
 
 			<main role="main">
 
-				<div class="container">
-					<h1 class="">In-App Purchases</h1>
-				</div>
+				<Jumbotron title="In-App Purchases"></Jumbotron>
 
 				<div class="container">
 					<div class="row">

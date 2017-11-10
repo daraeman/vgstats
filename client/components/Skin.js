@@ -1,6 +1,7 @@
 import React from "react"
 import { connect } from "react-redux"
 import LineGraph from "./LineGraph"
+import Jumbotron from "./Jumbotron"
 
 import { fetchSkin } from "../actions/Skin"
 
@@ -70,11 +71,7 @@ export default class Skin extends React.Component {
 
 			<main role="main">
 
-				<div class="jumbotron">
-					<div class="container">
-						<h1 class="">Skin: { skin.name }</h1>
-					</div>
-				</div>
+				<Jumbotron title={ "Skin: "+ skin.name }></Jumbotron>
 
 				<LineGraph data={ this.state.ice } id="graph_ice" name="ice"></LineGraph>
 				<LineGraph data={ this.state.glory } id="graph_glory" name="glory"></LineGraph>

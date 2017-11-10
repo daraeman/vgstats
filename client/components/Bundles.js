@@ -1,5 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
+import Jumbotron from "./Jumbotron"
 
 import { fetchBundles } from "../actions/Bundles"
 
@@ -38,9 +39,7 @@ export default class Bundles extends React.Component {
 
 			<main role="main">
 
-				<div class="container">
-					<h1 class="">Bundles</h1>
-				</div>
+				<Jumbotron title="Bundles"></Jumbotron>
 
 				<div class="container">
 					<div class="row">
