@@ -1,12 +1,44 @@
 const Skin = require( "../model/Skin" );
+const Hero = require( "../model/Hero" );
 const Stat = require( "../model/Stat" );
 
 const get = function( data ) {
 	return Skin.findOne( { symbol: data.symbol } );
 };
 
+const getSkinHeroId = function( data ) {
+	return new Promise( ( resolve, reject ) => {
+
+		if ( data.hero )
+			return resolve( data.hero );
+
+		Hero.findOne({ name: name })
+			.then( ( hero ) => {
+				if ( hero )
+					return resolve( hero._id );
+				else
+					return reject( "Hero Not Found" );
+			})
+			.catch( ( error ) => {
+				return reject( error );
+			});
+	});
+}
+
 const create = function( data ) {
-	return Skin.create({ symbol: data.symbol });
+	return new Promise( ( resolve, reject ) => {
+
+		getSkinHeroId( data )
+			.then( ( hero_id ) => {
+				return Skin.create({ symbol: data.symbol, hero: hero_id });
+			})
+			.then( ( skin ) => {
+				return resolve( skin );
+			})
+			.catch( ( error ) => {
+				return reject( error );
+			});
+	});
 };
 
 const getOrCreate = function( data ) {
