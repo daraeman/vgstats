@@ -1,6 +1,6 @@
 const mongoose = require( "mongoose" );
 const Schema = mongoose.Schema;
-const ObjectId = mongoose.Schema.Types.ObjectId;
+const ObjectId = Schema.Types.ObjectId;
 
 const IapStatSchema = new Schema({
 	iap: { type: ObjectId },
