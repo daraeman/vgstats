@@ -25,7 +25,7 @@ export default class Skins extends React.Component {
 
 		let skins_html = skins.map( ( skin, index ) => {
 			return (
-				<div class="col-md-2" key={ index }>
+				<div class="col" key={ index }>
 					<h3>
 						<a class="btn btn-primary" href={ "/skin/" + skin.name.toLowerCase() } role="button">
 							{ skin.name }

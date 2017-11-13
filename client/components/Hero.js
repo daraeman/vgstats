@@ -67,18 +67,18 @@ export default class Hero extends React.Component {
 		const { hero } = this.props;
 
 		let side_stats_data = [
-							{ title: "Introduced", text: "1 November 2016" },
-							{ title: "Skins", list: {
-								type: "link",
-								items: [
-									{ link: "#", text: "Skin 1" },
-									{ link: "#", text: "Skin 2" },
-									{ link: "#", text: "Skin 3" },
-									{ link: "#", text: "Skin 4" },
-									{ link: "#", text: "Skin 5" },
-								]
-							} }
-						];
+			{ title: "Introduced", text: "1 November 2016" },
+			{ title: "Skins", list: {
+				type: "link",
+				items: [
+					{ link: "#", text: "Skin 1" },
+					{ link: "#", text: "Skin 2" },
+					{ link: "#", text: "Skin 3" },
+					{ link: "#", text: "Skin 4" },
+					{ link: "#", text: "Skin 5" },
+				]
+			} }
+		];
 
 		return (
 
@@ -90,7 +90,7 @@ export default class Hero extends React.Component {
 
 					<div class="row">
 
-						<div class="col-xs-2">
+						<div class="col">
 
 							<h2>Ice</h2>
 							<LineGraph data={ this.state.ice } id="graph_ice" name="ice"></LineGraph>

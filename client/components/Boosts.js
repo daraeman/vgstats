@@ -25,7 +25,7 @@ export default class Boosts extends React.Component {
 
 		let boosts_html = boosts.map( ( boost, index ) => {
 			return (
-				<div class="col-md-2" key={ index }>
+				<div class="col" key={ index }>
 					<h3>
 						<a class="btn btn-primary" href={ "/boost/" + boost.name.toLowerCase() } role="button">
 							{ boost.name }

@@ -25,7 +25,7 @@ export default class Heroes extends React.Component {
 
 		let heroes_html = heroes.map( ( hero, index ) => {
 			return (
-				<div class="col-md-2" key={ index }>
+				<div class="col" key={ index }>
 					<h3>
 						<a class="btn btn-primary" href={ "/hero/" + hero.name.toLowerCase() } role="button">
 							{ hero.name }

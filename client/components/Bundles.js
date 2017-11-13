@@ -25,7 +25,7 @@ export default class Bundles extends React.Component {
 
 		let bundles_html = bundles.map( ( bundle, index ) => {
 			return (
-				<div class="col-md-2" key={ index }>
+				<div class="col" key={ index }>
 					<h3>
 						<a class="btn btn-primary" href={ "/bundle/" + bundle.name.toLowerCase() } role="button">
 							{ bundle.name }

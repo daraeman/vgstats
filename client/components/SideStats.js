@@ -35,7 +35,7 @@ export default class SideStats extends React.Component {
 
 		return (
 
-			<div class="col-xs-2 side_stats">
+			<div class="col side_stats">
 
 				<h2>{ title }</h2>
 				

@@ -25,7 +25,7 @@ export default class Actions extends React.Component {
 
 		let actions_html = actions.map( ( action, index ) => {
 			return (
-				<div class="col-md-2" key={ index }>
+				<div class="col" key={ index }>
 					<h3>
 						<a class="btn btn-primary" href={ "/action/" + action.name.toLowerCase() } role="button">
 							{ action.name }

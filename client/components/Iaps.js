@@ -25,7 +25,7 @@ export default class Iaps extends React.Component {
 
 		let iaps_html = iaps.map( ( iap, index ) => {
 			return (
-				<div class="col-md-2" key={ index }>
+				<div class="col" key={ index }>
 					<h3>
 						<a class="btn btn-primary" href={ "/iap/" + iap.name } role="button">
 							{ iap.name }
