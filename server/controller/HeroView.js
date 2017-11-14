@@ -1,4 +1,5 @@
 const Hero = require( "../model/Hero" );
+const Skin = require( "../model/Skin" );
 const Stat = require( "../model/Stat" );
 
 module.exports.heroes_list = function( request, response ) {
@@ -20,11 +21,13 @@ module.exports.heroes_list = function( request, response ) {
 module.exports.hero_data = function( request, response ) {
 
 	let data = {};
+	let this_hero;
 
 	Hero.findOne( { title: new RegExp( "^" + request.body.name + "$", "i" ) } )
 		.then( ( hero ) => {
 			if ( ! hero )
 				throw new Error( "Hero not found" );
+			this_hero = hero;
 			data.hero = {
 				name: hero.title,
 			};
@@ -37,6 +40,14 @@ module.exports.hero_data = function( request, response ) {
 					date: stat.date,
 					value: stat.amount,
 					missing: stat.missing,
+				}; });
+			}
+			return Skin.find({ hero: this_hero._id });
+		})
+		.then( ( skins ) => {
+			if ( skins && skins.length ) {
+				data.skins = skins.map( ( skin ) => { return {
+					name: skin.symbol,
 				}; });
 			}
 			return response.json( data );
