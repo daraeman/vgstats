@@ -42,6 +42,9 @@ module.exports.hero_data = function( request, response ) {
 					missing: stat.missing,
 				}; });
 			}
+			else {
+				data.stats = [];
+			}
 			return Skin.find({ hero: this_hero._id });
 		})
 		.then( ( skins ) => {
@@ -49,6 +52,9 @@ module.exports.hero_data = function( request, response ) {
 				data.skins = skins.map( ( skin ) => { return {
 					name: skin.symbol,
 				}; });
+			}
+			else {
+				data.skins = [];
 			}
 			return response.json( data );
 		})
