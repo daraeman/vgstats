@@ -6,18 +6,36 @@ const get = function( data ) {
 	return Skin.findOne( { symbol: data.symbol } );
 };
 
-const getSkinHeroId = function( data ) {
+const getSkinHeroId = function( skin ) {
 	return new Promise( ( resolve, reject ) => {
 
-		if ( data.hero )
-			return resolve( data.hero );
+		if ( skin.hero )
+			return resolve( skin.hero );
 
-		Hero.findOne({ name: name })
+		let name = skin.symbol.split( "_" )[0];
+
+		Hero.findOne({ title: name })
 			.then( ( hero ) => {
 				if ( hero )
 					return resolve( hero._id );
 				else
-					return reject( "Hero Not Found" );
+					return reject( "Hero Not Found ["+ skin.symbol +"]["+ name +"]" );
+			})
+			.catch( ( error ) => {
+				return reject( error );
+			});
+	});
+}
+
+const linkSkinToHero = function( skin ) {
+	return new Promise( ( resolve, reject ) => {
+
+		getSkinHeroId( skin )
+			.then( ( hero_id ) => {
+				return skin.update({ hero: hero_id });
+			})
+			.then( ( skin ) => {
+				return resolve( skin );
 			})
 			.catch( ( error ) => {
 				return reject( error );
@@ -154,4 +172,5 @@ module.exports = {
 	getOrCreate: getOrCreate,
 	createStat: createStat,
 	checkAndAddMissingStat: checkAndAddMissingStat,
+	linkSkinToHero: linkSkinToHero,
 };
