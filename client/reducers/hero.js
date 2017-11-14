@@ -1,8 +1,12 @@
 export default function reducer(
 	state = {
 		hero: {
-			hero: {},
+			hero: {
+				name: "",
+				release_date: "",
+			},
 			stats: [],
+			skins: [],
 		},
 		fetching: false,
 		fetched: false,

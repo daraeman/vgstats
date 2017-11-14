@@ -12,6 +12,7 @@ require( "../less/Hero.less" )
 	return {
 		hero: store.hero.hero.hero,
 		stats: store.hero.hero.stats,
+		skins: store.hero.hero.skins,
 	}
 })
 
@@ -62,23 +63,33 @@ export default class Hero extends React.Component {
 		this.formatData( props.stats );
 	}
 
+	formatDate( date ) {
+		const months = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
+		return months[ date.getMonth() ] + " "+ date.getDay() + ", "+ date.getFullYear();
+	}
+
 	render() {
 
-		const { hero } = this.props;
+		const { hero, skins } = this.props;
 
-		let side_stats_data = [
-			{ title: "Introduced", text: "1 November 2016" },
+		let side_stats_data = [];
+
+		if ( hero.release_date ) {
+			let release_date = new Date( hero.release_date * 1000 );
+			side_stats_data.push( { title: "Released", text: this.formatDate( release_date ) } );
+		}
+
+		side_stats_data.push(
 			{ title: "Skins", list: {
 				type: "link",
-				items: [
-					{ link: "#", text: "Skin 1" },
-					{ link: "#", text: "Skin 2" },
-					{ link: "#", text: "Skin 3" },
-					{ link: "#", text: "Skin 4" },
-					{ link: "#", text: "Skin 5" },
-				]
-			} }
-		];
+				items: skins.map( ( skin ) => {
+					return {
+						link: "/skin/"+ skin.name,
+						text: skin.name,
+					};
+				}),
+			}},
+		);
 
 		return (
 

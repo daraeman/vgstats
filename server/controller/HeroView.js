@@ -30,6 +30,7 @@ module.exports.hero_data = function( request, response ) {
 			this_hero = hero;
 			data.hero = {
 				name: hero.title,
+				release_date: hero.epoch,
 			};
 			return Stat.find({ hero: hero._id });
 		})
