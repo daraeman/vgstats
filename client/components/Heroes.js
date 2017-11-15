@@ -23,7 +23,9 @@ export default class Heroes extends React.Component {
 
 		const { heroes } = this.props
 
-		let heroes_html = heroes.map( ( hero, index ) => {
+		let heroes_html = heroes.sort( ( a, b ) => {
+			return ( a.name < b.name ) ? -1 : ( b.name > a.name ) ? 1 : 0;
+		}).map( ( hero, index ) => {
 			return (
 				<a class="btn btn-primary" href={ "/hero/" + hero.name.toLowerCase() } role="button">
 					{ hero.name }
