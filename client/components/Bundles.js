@@ -1,5 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
+import Jumbotron from "./Jumbotron"
 
 import { fetchBundles } from "../actions/Bundles"
 
@@ -24,7 +25,7 @@ export default class Bundles extends React.Component {
 
 		let bundles_html = bundles.map( ( bundle, index ) => {
 			return (
-				<div class="col-md-2" key={ index }>
+				<div class="col" key={ index }>
 					<h3>
 						<a class="btn btn-primary" href={ "/bundle/" + bundle.name.toLowerCase() } role="button">
 							{ bundle.name }
@@ -38,9 +39,7 @@ export default class Bundles extends React.Component {
 
 			<main role="main">
 
-				<div class="container">
-					<h1 class="">Bundles</h1>
-				</div>
+				<Jumbotron title="Bundles"></Jumbotron>
 
 				<div class="container">
 					<div class="row">

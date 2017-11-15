@@ -1,5 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
+import Jumbotron from "./Jumbotron"
 
 import { fetchHeroes } from "../actions/Heroes"
 
@@ -24,13 +25,9 @@ export default class Heroes extends React.Component {
 
 		let heroes_html = heroes.map( ( hero, index ) => {
 			return (
-				<div class="col-md-2" key={ index }>
-					<h3>
-						<a class="btn btn-primary" href={ "/hero/" + hero.name.toLowerCase() } role="button">
-							{ hero.name }
-						</a>
-					</h3>
-				</div>
+				<a class="btn btn-primary" href={ "/hero/" + hero.name.toLowerCase() } role="button">
+					{ hero.name }
+				</a>
 			)
 		});
 
@@ -38,15 +35,14 @@ export default class Heroes extends React.Component {
 
 			<main role="main">
 
-				<div class="container">
-					<h1 class="">Heroes</h1>
-				</div>
+				<Jumbotron title="Heros"></Jumbotron>
 
 				<div class="container">
-					<div class="row">
-						{ heroes_html }
+					<div class="col">
+						<div class="btn-group-vertical">
+							{ heroes_html }
+						</div>
 					</div>
-
 				</div>
 
 			</main>

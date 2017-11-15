@@ -1,12 +1,62 @@
 const Skin = require( "../model/Skin" );
+const Hero = require( "../model/Hero" );
 const Stat = require( "../model/Stat" );
 
 const get = function( data ) {
 	return Skin.findOne( { symbol: data.symbol } );
 };
 
+const getSkinHeroId = function( skin ) {
+	return new Promise( ( resolve, reject ) => {
+
+		if ( skin.hero )
+			return resolve( skin.hero );
+
+		let name = skin.symbol.split( "_" )[0];
+
+		Hero.findOne({ title: name })
+			.then( ( hero ) => {
+				if ( hero )
+					return resolve( hero._id );
+				else
+					return reject( "Hero Not Found ["+ skin.symbol +"]["+ name +"]" );
+			})
+			.catch( ( error ) => {
+				return reject( error );
+			});
+	});
+}
+
+const linkSkinToHero = function( skin ) {
+	return new Promise( ( resolve, reject ) => {
+
+		getSkinHeroId( skin )
+			.then( ( hero_id ) => {
+				return skin.update({ hero: hero_id });
+			})
+			.then( ( skin ) => {
+				return resolve( skin );
+			})
+			.catch( ( error ) => {
+				return reject( error );
+			});
+	});
+}
+
 const create = function( data ) {
-	return Skin.create({ symbol: data.symbol });
+	return new Promise( ( resolve, reject ) => {
+
+		getSkinHeroId( data )
+			.then( ( hero_id ) => {
+				return Skin.create({ symbol: data.symbol, hero: hero_id });
+			})
+			.then( ( skin ) => {
+				return resolve( skin );
+			})
+			.catch( ( error ) => {
+				return reject( error );
+			});
+	});
 };
 
 const getOrCreate = function( data ) {
@@ -122,4 +172,5 @@ module.exports = {
 	getOrCreate: getOrCreate,
 	createStat: createStat,
 	checkAndAddMissingStat: checkAndAddMissingStat,
+	linkSkinToHero: linkSkinToHero,
 };

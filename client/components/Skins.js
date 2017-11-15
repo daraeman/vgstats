@@ -1,5 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
+import Jumbotron from "./Jumbotron"
 
 import { fetchSkins } from "../actions/Skins"
 
@@ -24,7 +25,7 @@ export default class Skins extends React.Component {
 
 		let skins_html = skins.map( ( skin, index ) => {
 			return (
-				<div class="col-md-2" key={ index }>
+				<div class="col" key={ index }>
 					<h3>
 						<a class="btn btn-primary" href={ "/skin/" + skin.name.toLowerCase() } role="button">
 							{ skin.name }
@@ -38,9 +39,7 @@ export default class Skins extends React.Component {
 
 			<main role="main">
 
-				<div class="container">
-					<h1 class="">Skins</h1>
-				</div>
+				<Jumbotron title="Skins"></Jumbotron>
 
 				<div class="container">
 					<div class="row">

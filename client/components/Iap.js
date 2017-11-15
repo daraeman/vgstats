@@ -1,6 +1,7 @@
 import React from "react"
 import { connect } from "react-redux"
 import LineGraph from "./LineGraph"
+import Jumbotron from "./Jumbotron"
 
 import { fetchIap } from "../actions/Iap"
 
@@ -76,12 +77,8 @@ export default class Iap extends React.Component {
 
 			<main role="main">
 
-				<div class="jumbotron">
-					<div class="container">
-						<h1 class="">In-App Purchase: { iap.name }</h1>
-					</div>
-				</div>
-
+				<Jumbotron title={ "In-App Purchase: "+ iap.name }></Jumbotron>
+				
 				<LineGraph data={ this.state.USD } id="graph_usd" name="usd"></LineGraph>
 				<LineGraph data={ this.state.CNY } id="graph_cny" name="cny"></LineGraph>
 

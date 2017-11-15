@@ -1,5 +1,6 @@
 import React from "react"
 import { connect } from "react-redux"
+import Jumbotron from "./Jumbotron"
 
 import { fetchBoosts } from "../actions/Boosts"
 
@@ -24,7 +25,7 @@ export default class Boosts extends React.Component {
 
 		let boosts_html = boosts.map( ( boost, index ) => {
 			return (
-				<div class="col-md-2" key={ index }>
+				<div class="col" key={ index }>
 					<h3>
 						<a class="btn btn-primary" href={ "/boost/" + boost.name.toLowerCase() } role="button">
 							{ boost.name }
@@ -38,9 +39,7 @@ export default class Boosts extends React.Component {
 
 			<main role="main">
 
-				<div class="container">
-					<h1 class="">Boosts</h1>
-				</div>
+				<Jumbotron title="Boosts"></Jumbotron>
 
 				<div class="container">
 					<div class="row">

@@ -86,31 +86,55 @@ else {
 	});
 }
 
-db.connect()
-	.then( () => {
-		// start the server
-		return app.listen( process.env.BACKEND_PORT );
-	})
-	.then( () => {
+function startServer() {
 
-		log( "Server started on port "+ process.env.BACKEND_PORT );
+	log( "Connecting to database" );
+	db.connect()
+		.catch( ( error ) => {
 
-		if ( process.env.BACKEND_PORT < 1024 ) {
+			if ( error.name === "MongoError" ) {
+				if ( /failed to connect to server/.test( error.message ) ) {
+					log( "Failed to connect to to database, retrying in 5 seconds" );
+					setTimeout( () => {
+						startServer();
+					}, 5000 );
+				}
+				else {
+					log( "Database Error" );
+				}
+			}
 
-			// this lets us use sudo to start the server on a privileged port,
-			// then drop it down to normal permissions
-			let uid = parseInt( process.env.SUDO_UID );
+			throw error;                                                                                                       
+		})
+		.then( () => {
+			log( "Successfully connected to database" );
+			log( "Starting Web Server" );
+			// start the server
+			return app.listen( process.env.BACKEND_PORT );
+		})
+		.then( () => {
 
-			if ( uid )
-				process.setuid( uid );
+			log( "Server started on port "+ process.env.BACKEND_PORT );
 
-			log( "Server's UID is now " + process.getuid() );
+			if ( process.env.BACKEND_PORT < 1024 ) {
 
-		}
+				// this lets us use sudo to start the server on a privileged port,
+				// then drop it down to normal permissions
+				let uid = parseInt( process.env.SUDO_UID );
 
-	})
-	.catch( ( error ) => {
-		log( error );
-		db.close();
-	});
+				if ( uid )
+					process.setuid( uid );
+
+				log( "Server's UID is now " + process.getuid() );
+
+			}
+
+		})
+		.catch( ( error ) => {
+			log( error );
+			db.close();
+		});
+}
+
+startServer();
 
