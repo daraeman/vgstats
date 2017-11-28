@@ -15,17 +15,41 @@ let queue = new Queue({
 	concurrency: 1,
 });
 const Utils = require( __dirname + "/../controller/Utils" );
-const log_path = __dirname + "/../../log/update_markets";
-let logStream = Utils.openLog( log_path );
-function log( msg ) {
-	logStream.write( "["+ new Date() +"] " + msg + "\n" );
-}
 
-process.on( "uncaughtException", ( error ) => {
-    log( error );
+const log_path = __dirname + "/../../log/update_markets";
+const winston = require( "winston" );
+const tsFormat = () => new Date();
+const logger = new ( winston.Logger )( {
+	transports: [
+		new ( winston.transports.Console )( {
+			timestamp: tsFormat,
+			colorize: true,
+			level: "info",
+		} ),
+		new ( winston.transports.File )( {
+			filename: log_path,
+			timestamp: tsFormat,
+			json: true,
+			level: "debug",
+			handleExceptions: true
+		} ),
+	]
 });
 
-log ( "--------------------------------------" );
+process.on( "uncaughtException", function( error ) {
+	logger.error( "Caught exception: ",  error );
+})
+
+process.on( "unhandledRejection", function( reason, p ) {
+	logger.warn(
+		"Possibly Unhandled Rejection at: Promise ",
+		p,
+		" reason: ",
+		reason
+	);
+});
+
+logger.info( "--------------------------------------" );
 
 const loop_delay = ( 1000 * 60 ); // check for feeds needing updating every 60 seconds
 const request_delay = ( 1000 * 10 ); // don't hit servers more thatn once every 10 seconds
@@ -45,7 +69,7 @@ function callback() {
 
 				this_feeds = feeds;
 
-				log( "["+ feeds.length +"] feeds found to fetch" );
+				logger.info( "["+ feeds.length +"] feeds found to fetch" );
 
 				let feed_jobs = [];
 				feeds.forEach( ( feed ) => {
@@ -138,7 +162,7 @@ function callback() {
 									else if ( item.category === "skin" )
 										item_promise = SkinController.createStat;
 									else {
-										log( "Unknown item", JSON.stringify( item ) );
+										logger.warn( "Unknown item", JSON.stringify( item ) );
 
 										if ( --items_remaining === 0 ) {
 											return resolve();
@@ -157,7 +181,7 @@ function callback() {
 													});
 													return resolve();
 												}).catch( ( error ) => {
-													log( error.toString() );
+													logger.error( error );
 													return reject( error );
 												});
 										 })
@@ -203,12 +227,12 @@ function callback() {
 												}
 											})
 											.catch( ( error ) => {
-												log( error.toString() );
+												logger.error( error );
 												throw error;
 											});
 									})
 									.catch( ( error ) => {
-										log( error.toString() );
+										logger.error( error );
 										throw error;
 									});
 
@@ -234,10 +258,10 @@ function callback() {
 
 db.connect()
 	.then(() => {
-		log( "DB connected, starting" );
+		logger.info( "DB connected, starting" );
 		Utils.loop( callback, loop_delay );
 	})
 	.catch( ( error ) => {
-		log( error.toString() );
+		logger.error( error );
 		db.close();
 	});

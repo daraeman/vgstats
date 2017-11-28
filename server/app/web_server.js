@@ -1,17 +1,11 @@
 const express = require( "express" );
 const app = express();
-//const session = require( "express-session" );
 const cors = require( "cors" );
 const db = require( "../controller/db" );
 const bodyParser = require( "body-parser" );
 const jsonParser = bodyParser.json();
 require( "dotenv" ).config();
-const log_path = __dirname + "/../../log/web_server";
 const Utils = require( "../controller/Utils" );
-const logStream = Utils.openLog( log_path );
-function log( msg ) {
-	logStream.write( "["+ new Date() +"] " + msg + "\n" );
-}
 const path = require( "path" );
 const hero_view = require( "../controller/HeroView" );
 const skin_view = require( "../controller/SkinView" );
@@ -20,11 +14,40 @@ const iap_view = require( "../controller/IapView" );
 const action_view = require( "../controller/ActionView" );
 const boost_view = require( "../controller/BoostView" );
 
-process.on( "uncaughtException", ( error ) => {
-    log( error.stack );
+const log_path = __dirname + "/../../log/web_server";
+const winston = require( "winston" );
+const tsFormat = () => new Date();
+const logger = new ( winston.Logger )( {
+	transports: [
+		new ( winston.transports.Console )( {
+			timestamp: tsFormat,
+			colorize: true,
+			level: "info",
+		} ),
+		new ( winston.transports.File )( {
+			filename: log_path,
+			timestamp: tsFormat,
+			json: true,
+			level: "debug",
+			handleExceptions: true
+		} ),
+	]
 });
 
-log ( "--------------------------------------" );
+process.on( "uncaughtException", function( error ) {
+	logger.error( "Caught exception: ",  error );
+})
+
+process.on( "unhandledRejection", function( reason, p ) {
+	logger.warn(
+		"Possibly Unhandled Rejection at: Promise ",
+		p,
+		" reason: ",
+		reason
+	);
+});
+
+logger.info( "--------------------------------------" );
 
 app.use( cors( {
 	origin: true,
@@ -45,7 +68,7 @@ const store = new MongoDBStore({
 });
 
 store.on( "error", ( error ) => {
-	log( error );
+	logger.info( error );
 });
 
 app.use( session({
@@ -88,33 +111,33 @@ else {
 
 function startServer() {
 
-	log( "Connecting to database" );
+	logger.info( "Connecting to database" );
 	db.connect()
 		.catch( ( error ) => {
 
 			if ( error.name === "MongoError" ) {
 				if ( /failed to connect to server/.test( error.message ) ) {
-					log( "Failed to connect to to database, retrying in 5 seconds" );
+					logger.error( "Failed to connect to to database, retrying in 5 seconds" );
 					setTimeout( () => {
 						startServer();
 					}, 5000 );
 				}
 				else {
-					log( "Database Error" );
+					logger.error( "Database Error" );
 				}
 			}
 
 			throw error;                                                                                                       
 		})
 		.then( () => {
-			log( "Successfully connected to database" );
-			log( "Starting Web Server" );
+			logger.info( "Successfully connected to database" );
+			logger.info( "Starting Web Server" );
 			// start the server
 			return app.listen( process.env.BACKEND_PORT );
 		})
 		.then( () => {
 
-			log( "Server started on port "+ process.env.BACKEND_PORT );
+			logger.info( "Server started on port "+ process.env.BACKEND_PORT );
 
 			if ( process.env.BACKEND_PORT < 1024 ) {
 
@@ -125,13 +148,13 @@ function startServer() {
 				if ( uid )
 					process.setuid( uid );
 
-				log( "Server's UID is now " + process.getuid() );
+				logger.info( "Server's UID is now " + process.getuid() );
 
 			}
 
 		})
 		.catch( ( error ) => {
-			log( error );
+			logger.error( error );
 			db.close();
 		});
 }

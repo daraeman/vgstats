@@ -91,6 +91,9 @@ export default class Hero extends React.Component {
 			}},
 		);
 
+		let ice_title = ( this.state.ice.length ) ? (<h2>Ice</h2> ) : "";
+		let glory_title = ( this.state.glory.length ) ? (<h2>Glory</h2> ) : "";
+
 		return (
 
 			<main role="main">
@@ -103,10 +106,10 @@ export default class Hero extends React.Component {
 
 						<div class="col">
 
-							<h2>Ice</h2>
+							{ ice_title }
 							<LineGraph data={ this.state.ice } id="graph_ice" name="ice"></LineGraph>
 
-							<h2>Glory</h2>
+							{ glory_title }
 							<LineGraph data={ this.state.glory } id="graph_glory" name="glory"></LineGraph>
 
 						</div>
