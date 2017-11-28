@@ -21,8 +21,7 @@ export default class Skin extends React.Component {
 		this.props.dispatch( fetchSkin( this.props.dispatch, this.props.match.params.skinName ) );
 
 		this.setState({
-			ice: [],
-			glory: [],
+			currencies: []
 		});
 
 		this.formatData.bind( this );
@@ -33,26 +32,31 @@ export default class Skin extends React.Component {
 		if ( ! stats.length )
 			return;
 
+		let currencies = [];
 		let data = stats.sort( ( a, b ) => {
 			return ( a.date - b.date );
 		}).map( ( item ) => {
 			item.date = new Date( item.date );
+			if ( currencies.indexOf( item.currency === -1 ) )
+				currencies.push( item.currency );
 			return item;
 		});
 
-
-		let ice = data.filter( ( d ) => {
-			return ( d.currency === "gold" );
+		currencies = currencies.map( ( currency ) => {
+			console.log( "currency", currency )
+			let currency_data = data.filter( ( d ) => {
+				return ( currency === d.currency );
+			});
+			let this_data = {
+				name: currency,
+				data: currency_data,
+			};
+			return this_data;
 		});
 
-		let glory = data.filter( ( d ) => {
-			return ( d.currency === "silver" );
-		});
+		console.log( "currencies", currencies )
 
-		this.setState({
-			ice: ice,
-			glory: glory,
-		});
+		this.setState( { currencies: currencies } );
 		
 	}
 
@@ -65,6 +69,15 @@ export default class Skin extends React.Component {
 
 		const { skin } = this.props
 
+		console.log( " this.state.currencies",  this.state.currencies )
+
+		let lineGraphs = this.state.currencies.map( ( currency ) => {
+			console.log( currency )
+			return ( <LineGraph data={ currency.data } id={ "graph_" + currency.name } name={ currency.name } key={ currency.name }></LineGraph> )
+		})
+
+		console.log( "lineGraphs", lineGraphs )
+
 		console.log( "skin", skin )
 
 		return (
@@ -73,8 +86,9 @@ export default class Skin extends React.Component {
 
 				<Jumbotron title={ "Skin: "+ skin.name }></Jumbotron>
 
-				<LineGraph data={ this.state.ice } id="graph_ice" name="ice"></LineGraph>
-				<LineGraph data={ this.state.glory } id="graph_glory" name="glory"></LineGraph>
+				<div>
+					{ lineGraphs }
+				</div>
 
 			</main>
 		)

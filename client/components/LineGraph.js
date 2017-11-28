@@ -109,7 +109,7 @@ export default class LineGraph extends React.Component {
 
 	// we need to wait until the html has been rendered, so we can send the element to d3
 	componentDidMount() {
-		this.makeGraph();
+		this.makeGraph( this.props );
 	}
 
 	componentWillReceiveProps( props ) {
