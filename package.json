@@ -12,7 +12,7 @@
     "start_database": "if [ -z $(pidof mongod) ]; then mongod --config mongo.conf; else echo 'Mongod is already running'; fi;",
     "stop_database": "if [ ! -z $(pidof mongod) ]; then kill $(pidof mongod); else echo 'Mongod was not running'; fi;",
     "start_client_dev": "export NODE_ENV=dev; node_modules/.bin/webpack-dev-server",
-	"start_server_dev": "export NODE_ENV=dev; nodemon server/app/web_server.js",
+    "start_server_dev": "export NODE_ENV=dev; nodemon server/app/web_server.js",
     "start_server": "export NODE_ENV=production; node server/index.js start web_server",
     "stop_server": "export NODE_ENV=production; node server/index.js stop web_server",
     "build_client": "export NODE_ENV=production; webpack --config webpack.config.js",
@@ -57,7 +57,8 @@
     "request-promise-native": "^1.0.5",
     "simple-promise-queue": "^0.1.7",
     "style-loader": "^0.19.0",
-    "uglifyjs-webpack-plugin": "^1.0.1"
+    "uglifyjs-webpack-plugin": "^1.0.1",
+    "winston": "^2.4.0"
   },
   "devDependencies": {
     "chai": "^4.1.2",
