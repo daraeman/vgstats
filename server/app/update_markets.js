@@ -256,12 +256,34 @@ function callback() {
 
 }
 
-db.connect()
-	.then(() => {
-		logger.info( "DB connected, starting" );
-		Utils.loop( callback, loop_delay );
-	})
-	.catch( ( error ) => {
-		logger.error( error );
-		db.close();
-	});
+function start() {
+
+	db.connect()
+		.catch( ( error ) => {
+
+				if ( error.name === "MongoError" ) {
+					if ( /failed to connect to server/.test( error.message ) ) {
+						logger.error( "Failed to connect to to database, retrying in 5 seconds" );
+						setTimeout( () => {
+							start();
+						}, 5000 );
+					}
+					else {
+						logger.error( "Database Error" );
+					}
+				}
+
+				throw error;                                                                                                       
+			})
+			.then(() => {
+				logger.info( "DB connected, starting" );
+				Utils.loop( callback, loop_delay );
+			})
+			.catch( ( error ) => {
+				logger.error( error );
+				db.close();
+			});
+
+}
+
+start();
