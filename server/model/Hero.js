@@ -9,6 +9,7 @@ const HeroSchema = new Schema({
 	vgf: { type: String },
 	epoch: { type: Number },
 	placeholder: { type: Boolean, default: false },
+	type: { type: String }, // ie: lane, jungle, roam
 });
 
 module.exports = mongoose.model( "Hero", HeroSchema );
