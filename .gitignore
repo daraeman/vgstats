@@ -2,7 +2,6 @@ node_modules
 server/data/*
 mongo.conf
 .env
-.env.local
 *.DS_Store
 data/database/*
 log/*

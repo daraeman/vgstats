@@ -10,26 +10,22 @@ const FeedController = require( "../controller/Feed" );
 const PromiseEndError = require( "../controller/PromiseEndError" );
 const fs = require( "fs-extra" );
 require( "dotenv" ).config();
-/*
+const watch = require( "node-watch" );
+const path = require( "path" );
+const log = require( "../controller/Log" )( path.resolve( __dirname, "../../log/parse_markets" ) );
 const Queue = require( "simple-promise-queue" );
 let queue = new Queue({
 	autoStart: true,
 	concurrency: 1,
 });
-const Utils = require( __dirname + "/../controller/Utils" );
-*/
-const watch = require( "node-watch" );
-const path = require( "path" );
-const log = require( "../controller/Log" )( path.resolve( __dirname, "../../log/parse_markets" ) );
 
 
 log.info( "--------------------------------------" );
 
-function process( feed, file_path ) {
+function processFeed( feed, file_path ) {
 
 	return new Promise( ( resolve, reject ) => {
 
-		log.info( "file_path [" + file_path + "]" );
 		let date_matches = file_path.match( /(\d+)\.json$/ );
 		let date = new Date( +date_matches[1] );
 
@@ -39,11 +35,7 @@ function process( feed, file_path ) {
 			})
 			.then( ( data ) => {
 
-				log.info( "data: " + data );
-				log.info( "feed.change_ids: " + feed.change_ids );
-
 				if ( feed.change_ids.indexOf( data.rendered ) === -1 ) {
-					log.info( "a" );
 
 					function removeStat( category, stat_id ) {
 						
@@ -67,14 +59,12 @@ function process( feed, file_path ) {
 					let all_iap_stats;
 					StatController.getAllStatsLatest( feed )
 						.then( ( response ) => {
-							log.info( "b" );
 
 							all_stats = response;
 
 							return IapController.getAllStatsLatest( feed );
 						})
 						.then( ( response ) => {
-							log.info( "c" );
 
 							all_iap_stats = response;
 
@@ -84,8 +74,7 @@ function process( feed, file_path ) {
 							let items_remaining = data.items.length;
 							let item_jobs = [];
 
-							data.items.forEach( ( item, i ) => {
-							//	log.info( "d", i );
+							data.items.forEach( ( item ) => {
 
 								let item_promise;
 								if ( item.category === "iap" )
@@ -129,7 +118,6 @@ function process( feed, file_path ) {
 
 							Promise.all( item_jobs )
 								.then( () => {
-									log.info( "e" );
 
 									let missing_jobs = [];
 
@@ -162,7 +150,6 @@ function process( feed, file_path ) {
 
 									Promise.all( missing_jobs )
 										.then( () => {
-											log.info( "f" );
 											return resolve();
 										})
 										.catch( ( error ) => {
@@ -179,7 +166,6 @@ function process( feed, file_path ) {
 
 				}
 				else {
-					log.info( "g" );
 					return resolve();
 				}
 			})
@@ -194,7 +180,7 @@ function process( feed, file_path ) {
 }
 
 function start() {
-	log.info( "start" );
+	let feeds;
 	db.connect()
 		.catch( ( error ) => {
 
@@ -216,32 +202,44 @@ function start() {
 				log.info( "DB connected, starting" );
 				return FeedController.getFeeds( "market" );
 			})
-			.then( ( feeds ) => {
-				log.info( "!!!!!!!!!!!!!!! FEEDS: " + feeds.length );
+			.then( ( this_feeds ) => {
+				feeds = this_feeds;
 
 				if ( ! feeds.length )
 					throw new PromiseEndError( "No Feeds Found" );
 
+				// parse any existing unparsed files
+				let jobs = [];
 				feeds.forEach( ( feed ) => {
 					let unparsed_dir = path.resolve( FeedController.createSavePath( feed.path ), "unparsed" );
 					let parsed_dir = path.resolve( FeedController.createSavePath( feed.path ), "parsed" );
 
-					// parse any existing unparsed files
 					fs.readdir( unparsed_dir )
 						.then( ( items ) => {
 							items.forEach( ( file_name ) => {
-								process( feed, path.resolve( unparsed_dir, file_name ) )
-									.then( () => {
-										log.info( "parsed_dir ["+ parsed_dir +"]" );
-										log.info( "manual moving file [" + path.resolve( unparsed_dir, file_name ) + "] [" + path.resolve( parsed_dir, file_name ) + "]" );
-										return fs.rename( path.resolve( unparsed_dir, file_name ), path.resolve( parsed_dir, file_name ) );
-									});
+								jobs.push( queue.pushTask( function( resolve ) {
+									processFeed( feed, path.resolve( unparsed_dir, file_name ) )
+										.then( () => {
+											return fs.rename( path.resolve( unparsed_dir, file_name ), path.resolve( parsed_dir, file_name ) );
+										})
+										.then( () => {
+											return resolve();
+										});
+								}));
 							});
-						});
+					});
+				});
 
-					log.info( "Watching: ", unparsed_dir );
+				return Promise.all( jobs );
 
-					// watch dir and parse new files as they come in
+			})
+			.then( () => {
+
+				// watch dir and parse new files as they come in
+				feeds.forEach( ( feed ) => {
+					let unparsed_dir = path.resolve( FeedController.createSavePath( feed.path ), "unparsed" );
+					let parsed_dir = path.resolve( FeedController.createSavePath( feed.path ), "parsed" );
+
 					watch(
 						unparsed_dir + "/",
 						{ recursive: true },
@@ -250,7 +248,7 @@ function start() {
 							if ( event === "update" ) {
 								let parsed_path = path.resolve( parsed_dir, file_name );
 								let unparsed_path = path.resolve( unparsed_dir, file_name );
-								process( feed, unparsed_path )
+								processFeed( feed, unparsed_path )
 									.then( () => {
 										return fs.rename( unparsed_path, parsed_path );
 									});
@@ -268,7 +266,5 @@ function start() {
 			});
 
 }
-
-log.info( "before start" );
 
 start();
