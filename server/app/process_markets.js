@@ -232,6 +232,8 @@ function start() {
 					});
 				});
 
+				log.info( "Manually processing "+ jobs.length +" files" );
+
 				return Promise.all( jobs );
 
 			})
@@ -249,6 +251,7 @@ function start() {
 						unparsed_dir + "/",
 						{ recursive: true },
 						function( event, file_path ) {
+							log.info( "file change found ["+ file_path +"]" );
 							jobs.push( queue.pushTask( function( resolve ) {
 								let file_name = path.basename( file_path );
 								if ( event === "update" ) {
