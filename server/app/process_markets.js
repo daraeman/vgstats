@@ -208,6 +208,8 @@ function start() {
 				if ( ! feeds.length )
 					throw new PromiseEndError( "No Feeds Found" );
 
+				log.info( "Processing existing files" );
+
 				// parse any existing unparsed files
 				let jobs = [];
 				feeds.forEach( ( feed ) => {
@@ -235,7 +237,10 @@ function start() {
 			})
 			.then( () => {
 
+				log.info( "Starting Watch" );
+
 				// watch dir and parse new files as they come in
+				let jobs = [];
 				feeds.forEach( ( feed ) => {
 					let unparsed_dir = path.resolve( FeedController.createSavePath( feed.path ), "unparsed" );
 					let parsed_dir = path.resolve( FeedController.createSavePath( feed.path ), "parsed" );
@@ -244,15 +249,20 @@ function start() {
 						unparsed_dir + "/",
 						{ recursive: true },
 						function( event, file_path ) {
-							let file_name = path.basename( file_path );
-							if ( event === "update" ) {
-								let parsed_path = path.resolve( parsed_dir, file_name );
-								let unparsed_path = path.resolve( unparsed_dir, file_name );
-								processFeed( feed, unparsed_path )
-									.then( () => {
-										return fs.rename( unparsed_path, parsed_path );
-									});
-							}
+							jobs.push( queue.pushTask( function( resolve ) {
+								let file_name = path.basename( file_path );
+								if ( event === "update" ) {
+									let parsed_path = path.resolve( parsed_dir, file_name );
+									let unparsed_path = path.resolve( unparsed_dir, file_name );
+									processFeed( feed, unparsed_path )
+										.then( () => {
+											return fs.rename( unparsed_path, parsed_path );
+										})
+										.then( () => {
+											return resolve();
+										});
+								}
+							}));
 						}
 					);
 				});
