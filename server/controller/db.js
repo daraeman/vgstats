@@ -2,6 +2,8 @@ const mongoose = require( "mongoose" );
 mongoose.Promise = global.Promise;
 require( "dotenv" ).config();
 
+mongoose.set( "debug", true );
+
 let db_name;
 
 const connect = function( custom_db_name ) {

@@ -1,15 +1,15 @@
 import React from "react"
 
-require( "../less/TopNav.less" )
+require( "../less/SubNav.less" )
 
-export default class TopNav extends React.Component {
+export default class SubNav extends React.Component {
 
 	render() {
 
 		let links = [
 			//{ name: "Bundles", path: "bundles" },
 			//{ name: "Skins", path: "skins" },
-			{ name: "Heroes", path: "heroes" },
+			{ name: "prices_all", path: "heroes/prices_all" },
 			//{ name: "In-App Purchases", path: "iaps" },
 			//{ name: "Boosts", path: "boosts" },
 			//{ name: "Actions", path: "actions" },
@@ -23,11 +23,7 @@ export default class TopNav extends React.Component {
 
 		return (
 
-			<nav id="top_menu">
-
-				<div class="menu_left">
-					<a class="link" href="/">VGSTATS</a>
-				</div>
+			<nav id="sub_menu">
 
 				<div class="menu_items">
 					{ links_html }

@@ -7,12 +7,12 @@ export default class Splash extends React.Component {
 	render() {
 
 		let categories = [
-			{ name: "Bundles", path: "bundles" },
-			{ name: "Skins", path: "skins" },
+			//{ name: "Bundles", path: "bundles" },
+			//{ name: "Skins", path: "skins" },
 			{ name: "Heroes", path: "heroes" },
-			{ name: "In-App Purchases", path: "iaps" },
-			{ name: "Boosts", path: "boosts" },
-			{ name: "Actions", path: "actions" },
+			//{ name: "In-App Purchases", path: "iaps" },
+			//{ name: "Boosts", path: "boosts" },
+			//{ name: "Actions", path: "actions" },
 		];
 
 		let categories_html = categories.map( ( category, index ) => {
@@ -30,8 +30,8 @@ export default class Splash extends React.Component {
 				<div class="jumbotron">
 					<div class="container">
 						<h1 class="display-3">Welcome to VGSTATS</h1>
-						<p>Letting you know whether the skin deal is actually good since 2017.</p>
-						<p>Click one of the categories below, or search for something in the top bar to get started.</p>
+						<p>Analyzing Vainglory Since 2017.</p>
+						<p>Click one of the categories below to get started.</p>
 					</div>
 				</div>
 
