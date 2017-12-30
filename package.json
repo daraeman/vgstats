@@ -18,6 +18,9 @@
     "start_server_dev": "export NODE_ENV=dev; nodemon server/app/web_server.js",
     "start_server": "export NODE_ENV=production; node server/index.js start web_server",
     "stop_server": "export NODE_ENV=production; node server/index.js stop web_server",
+    "start_all": "export NODE_ENV=production; node server/index.js start_all",
+    "status_all": "export NODE_ENV=production; node server/index.js status_all",
+    "stop_all": "export NODE_ENV=production; node server/index.js stop_all",
     "build_client": "export NODE_ENV=production; webpack --config webpack.config.js",
     "manage_feeds": "node server/app/manage_feeds.js"
   },

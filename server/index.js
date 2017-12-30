@@ -4,14 +4,14 @@ const base = process.cwd();
 process.env.BASE = base;
 
 let apps = {
-	update_markets: {
+	process_markets: {
 		main: base + "/server/app/process_markets.js",
 		name: "process_markets",
 		pidfile: base + "/pids/process_markets.pid",
 	},
 	fetch_markets: {
 		main: base + "/server/app/fetch_markets.js",
-		name: "ufetch_markets",
+		name: "fetch_markets",
 		pidfile: base + "/pids/fetch_markets.pid",
 	},
 	web_server: {
