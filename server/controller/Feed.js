@@ -7,9 +7,16 @@ require( "dotenv" ).config();
 // how often to check feeds
 const feed_interval = parseInt( process.env.FEED_INTERVAL );
 
-function createSavePath( path ) {
+const createSavePath = function( path ) {
 	return  __dirname + "/../" + path;
-}
+};
+
+const getFeeds = function( type ) {
+	return Feed.find( {
+		type: type,
+		enabled: true,
+	});
+};
 
 const retrieveFeed = function( feed ) {
 
@@ -21,7 +28,7 @@ const retrieveFeed = function( feed ) {
 		request( feed.url )
 			.then( ( body ) => {
 				json = body;
-				return fs.writeFile( createSavePath( feed.path ) + "/" + date.getTime() + ".json", body );
+				return fs.writeFile( createSavePath( feed.path ) + "/unparsed/" + date.getTime() + ".json", body );
 			})
 			.then( () => {
 				feed.fetched = new Date();
@@ -87,6 +94,12 @@ const add = function( url, language, region, platform, type, enabled, path ) {
 							throw new Error( "Failed to create Feed" );
 						this_feed = feed;
 						return mkdirp( createSavePath( path ) );
+					})
+					.then( () => {
+						return mkdirp( createSavePath( path + "/unparsed" ) );
+					})
+					.then( () => {
+						return mkdirp( createSavePath( path + "/parsed" ) );
 					})
 					.then( () => {
 						return resolve( this_feed );
@@ -200,4 +213,6 @@ module.exports = {
 	remove: remove,
 	disable: disable,
 	enable: enable,
+	getFeeds: getFeeds,
+	createSavePath: createSavePath,
 };

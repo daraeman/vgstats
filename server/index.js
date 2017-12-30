@@ -5,9 +5,14 @@ process.env.BASE = base;
 
 let apps = {
 	update_markets: {
-		main: base + "/server/app/update_markets.js",
-		name: "update_markets",
-		pidfile: base + "/pids/update_markets.pid",
+		main: base + "/server/app/process_markets.js",
+		name: "process_markets",
+		pidfile: base + "/pids/process_markets.pid",
+	},
+	fetch_markets: {
+		main: base + "/server/app/fetch_markets.js",
+		name: "ufetch_markets",
+		pidfile: base + "/pids/fetch_markets.pid",
 	},
 	web_server: {
 		main: base + "/server/app/web_server.js",

@@ -2,11 +2,11 @@ const fs = require( "fs.promised" );
 
 const loop = function( callback, delay ) {
 
-	callback().then( () => {
-
+	callback().then( ( custom_delay ) => {
+		let this_delay = custom_delay || delay;
 		setTimeout( () => {
 			loop( callback, delay );
-		}, delay );
+		}, this_delay );
 
 	});
 };

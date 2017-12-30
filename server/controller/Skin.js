@@ -1,5 +1,5 @@
 const Skin = require( "../model/Skin" );
-const Hero = require( "../model/Hero" );
+const HeroController = require( "./Hero" );
 const Stat = require( "../model/Stat" );
 
 const get = function( data ) {
@@ -14,18 +14,28 @@ const getSkinHeroId = function( skin ) {
 
 		let name = skin.symbol.split( "_" )[0];
 
-		Hero.findOne({ title: name })
+		HeroController.get( { title: name } )
+			.then( ( hero ) => {
+				if ( hero ) {
+					return hero;
+				}
+				else {
+					//log.warn( "Skin: No Hero Found ["+ skin.symbol +"]["+ name +"]" );
+					return HeroController.createPlaceholder( name );
+				}
+
+			})
 			.then( ( hero ) => {
 				if ( hero )
 					return resolve( hero._id );
 				else
-					return reject( "Hero Not Found ["+ skin.symbol +"]["+ name +"]" );
+					throw new Error( "Failed to find hero, or create placeholder ["+ skin.symbol +"]" );
 			})
 			.catch( ( error ) => {
 				return reject( error );
 			});
 	});
-}
+};
 
 const linkSkinToHero = function( skin ) {
 	return new Promise( ( resolve, reject ) => {
@@ -41,7 +51,7 @@ const linkSkinToHero = function( skin ) {
 				return reject( error );
 			});
 	});
-}
+};
 
 const create = function( data ) {
 	return new Promise( ( resolve, reject ) => {

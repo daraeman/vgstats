@@ -49,6 +49,17 @@ const createStat = function( data, feed, date ) {
 
 					let currency = Object.keys( sku.price )[0];
 					let amount = sku.price[ Object.keys( sku.price )[0] ];
+					let duration;
+					if ( sku.id.match( /PERMANENT/ ) ) {
+						duration = Infinity;
+					}
+					else {
+						let duration_matches = sku.id.match( /_(\d+)([A-Z])_/ );
+						if ( ! duration_matches )
+							console.log( "+++++++++" + sku.id );
+						duration = duration_matches[1];
+						duration *= ( duration_matches[1] == "H" ) ? 60 : ( duration_matches[1] == "D" ) ? ( 60 * 24 ) : 1;
+					}
 
 					Stat.findOne({
 						id: sku.id,
@@ -74,6 +85,7 @@ const createStat = function( data, feed, date ) {
 									amount: amount,
 									boost: boost._id,
 									feed: feed._id,
+									duration: duration,
 								});
 							}
 							else {
@@ -107,6 +119,7 @@ const checkAndAddMissingStat = function( stat ) {
 				boost: stat.boost,
 				feed: stat.feed,
 				missing: true,
+				duration: duration,
 			})
 			.then( () => {
 				return resolve();

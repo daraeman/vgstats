@@ -5,7 +5,6 @@ const db = require( "../controller/db" );
 const bodyParser = require( "body-parser" );
 const jsonParser = bodyParser.json();
 require( "dotenv" ).config();
-const Utils = require( "../controller/Utils" );
 const path = require( "path" );
 const hero_view = require( "../controller/HeroView" );
 const skin_view = require( "../controller/SkinView" );
@@ -13,41 +12,9 @@ const bundle_view = require( "../controller/BundleView" );
 const iap_view = require( "../controller/IapView" );
 const action_view = require( "../controller/ActionView" );
 const boost_view = require( "../controller/BoostView" );
+const log = require( "../controller/Log" )( path.resolve( __dirname, "../../log/web_server" ) );
 
-const log_path = __dirname + "/../../log/web_server";
-const winston = require( "winston" );
-const tsFormat = () => new Date();
-const logger = new ( winston.Logger )( {
-	transports: [
-		new ( winston.transports.Console )( {
-			timestamp: tsFormat,
-			colorize: true,
-			level: "info",
-		} ),
-		new ( winston.transports.File )( {
-			filename: log_path,
-			timestamp: tsFormat,
-			json: true,
-			level: "debug",
-			handleExceptions: true
-		} ),
-	]
-});
-
-process.on( "uncaughtException", function( error ) {
-	logger.error( "Caught exception: ",  error );
-})
-
-process.on( "unhandledRejection", function( reason, p ) {
-	logger.warn(
-		"Possibly Unhandled Rejection at: Promise ",
-		p,
-		" reason: ",
-		reason
-	);
-});
-
-logger.info( "--------------------------------------" );
+log.info( "--------------------------------------" );
 
 app.use( cors( {
 	origin: true,
@@ -55,32 +22,7 @@ app.use( cors( {
 }) );
 
 app.disable( "x-powered-by" );
-/*
-app.use( "/img", express.static( path.resolve( __dirname + "./public/img" ) );
-app.use( "/font", express.static( path.resolve( __dirname + "./public/font" ) );
-*/
-/*
-const MongoDBStore = require( "connect-mongodb-session" )( session );
 
-const store = new MongoDBStore({
-	uri: db.getUrl( true ),
-	collection: "sessions",
-});
-
-store.on( "error", ( error ) => {
-	logger.info( error );
-});
-
-app.use( session({
-	secret: process.env.APP_SECRET,
-	cookie: {
-		maxAge: ( 1000 * 60 * 60 * 1 ) // 1 hour 
-	},
-	store: store,
-	resave: true,
-	saveUninitialized: true
-}));
-*/
 // routes
 app.post( "/api/heroes/get", hero_view.heroes_list );
 app.post( "/api/hero/get", jsonParser, hero_view.hero_data );
@@ -111,50 +53,50 @@ else {
 
 function startServer() {
 
-	logger.info( "Connecting to database" );
+	log.info( "Connecting to database" );
 	db.connect()
 		.catch( ( error ) => {
 
-			if ( error.name === "MongoError" ) {
+			if ( error.name === "MongoError" || error.name === "MongooseError" ) {
 				if ( /failed to connect to server/.test( error.message ) ) {
-					logger.error( "Failed to connect to to database, retrying in 5 seconds" );
+					log.error( "Failed to connect to to database, retrying in 5 seconds" );
 					setTimeout( () => {
 						startServer();
 					}, 5000 );
 				}
 				else {
-					logger.error( "Database Error" );
+					log.error( "Database Error" );
 				}
 			}
 
 			throw error;                                                                                                       
 		})
 		.then( () => {
-			logger.info( "Successfully connected to database" );
-			logger.info( "Starting Web Server" );
+			log.info( "Successfully connected to database" );
+			log.info( "Starting Web Server" );
 			// start the server
 			return app.listen( process.env.BACKEND_PORT );
 		})
 		.then( () => {
 
-			logger.info( "Server started on port "+ process.env.BACKEND_PORT );
+			log.info( "Server started on port "+ process.env.BACKEND_PORT );
 
+			// this lets us use sudo to start the server on a privileged port,
+			// then drop it down to normal permissions
 			if ( process.env.BACKEND_PORT < 1024 ) {
 
-				// this lets us use sudo to start the server on a privileged port,
-				// then drop it down to normal permissions
 				let uid = parseInt( process.env.SUDO_UID );
 
 				if ( uid )
 					process.setuid( uid );
 
-				logger.info( "Server's UID is now " + process.getuid() );
+				log.info( "Server's UID is now " + process.getuid() );
 
 			}
 
 		})
 		.catch( ( error ) => {
-			logger.error( error );
+			log.error( error );
 			db.close();
 		});
 }

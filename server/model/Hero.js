@@ -8,6 +8,7 @@ const HeroSchema = new Schema({
 	video: { type: String },
 	vgf: { type: String },
 	epoch: { type: Number },
+	placeholder: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model( "Hero", HeroSchema );

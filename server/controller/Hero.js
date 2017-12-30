@@ -1,10 +1,38 @@
 const Hero = require( "../model/Hero" );
 const Stat = require( "../model/Stat" );
+const Skin = require( "../model/Skin" );
 const ImageController = require( "./Image" );
 const VideoController = require( "./Video" );
 
 const get = function( data ) {
-	return Hero.findOne( { title: data.title } );
+	return new Promise( ( resolve, reject ) => {
+
+		Hero.find( { title: data.title } )
+			.then( ( heroes ) => {
+
+				if ( ! heroes.length )
+					return resolve( false );
+
+				// if we get more than one hero, one is likely a placeholder
+				// return the real entry if possible
+				else if ( heroes.length > 1 ) {
+					let true_hero;
+					heroes.forEach( ( hero ) => {
+						if ( hero.placeholder )
+							return;
+						else
+							true_hero = hero;
+					});
+					true_hero = true_hero || heroes[0];
+					return resolve( true_hero );
+				}
+
+				// if only one result, return it
+				else
+					return resolve( heroes[0] );
+
+			});
+	});
 };
 
 const create = function( data ) {
@@ -18,15 +46,33 @@ const create = function( data ) {
 	});
 };
 
+const createPlaceholder = function( name ) {
+	return Hero.create({
+		title: name,
+		placeholder: true,
+	});
+};
+
 const getOrCreate = function( data ) {
 	return new Promise( ( resolve, reject) => {
 		
+		let placeholder = false;
 		get( data )
 			.then( ( hero ) => {
-				if ( ! hero )
+
+//				console.log( "hero >>" )
+//				console.log( hero )
+//				console.log( data )
+				
+				if ( hero.placeholder )
+					placeholder = hero;
+
+				if ( ! hero || hero.placeholder ) {
 					return create( data );
-				else
+				}
+				else {
 					return hero;
+				}
 			})
 			.then( ( hero ) => {
 
@@ -54,6 +100,31 @@ const getOrCreate = function( data ) {
 						return hero.save();
 					})
 					.then( ( hero ) => {
+
+						// if we previously had a placeholder hero,
+						// update the skins to the new hero
+						// and also delete the placeholder hero
+						if ( placeholder && ! hero.placeholder ) {
+							return Skin.find( { hero: placeholder._id })
+								.then( ( skins ) => {
+									if ( ! skins.length )
+										return resolve( hero );
+									else {
+										let jobs = [];
+										skins.forEach( ( skin ) => {
+											jobs.push( skin.update({ hero: hero._id }) );
+										});
+										Promise.all( jobs )
+											.then( () => {
+												return placeholder.remove();
+											})
+											.then( () => {
+												return resolve( hero );
+											});
+									}
+								});
+						}
+
 						return resolve( hero );
 					});
 			})
@@ -155,7 +226,9 @@ const checkAndAddMissingStat = function( stat ) {
 };
 
 module.exports = {
+	get: get,
 	getOrCreate: getOrCreate,
 	createStat: createStat,
 	checkAndAddMissingStat: checkAndAddMissingStat,
+	createPlaceholder: createPlaceholder,
 };

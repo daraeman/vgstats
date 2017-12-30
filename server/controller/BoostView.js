@@ -45,6 +45,7 @@ module.exports.boost_data = function( request, response ) {
 					date: stat.date,
 					value: stat.amount,
 					missing: stat.missing,
+					duration: stat.duration,
 				}; });
 			}
 			return response.json( data );

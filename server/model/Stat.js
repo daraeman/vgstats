@@ -17,6 +17,7 @@ const StatSchema = new Schema({
 	bundle: { type: ObjectId },
 	feed: { type: ObjectId },
 	missing: { type: Boolean, default: false },
+	duration: { type: Number },
 });
 
 module.exports = mongoose.model( "Stat", StatSchema );
