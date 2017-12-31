@@ -13,7 +13,10 @@ module.exports.heroes_list = function( request, response ) {
 			let jobs = [];
 			heroes.forEach( ( hero ) => {
 
-				let hero_data = { name: hero.title };
+				let hero_data = {
+					name: hero.title,
+					class: hero.type,
+				};
 
 				jobs.push(
 					new Promise( ( resolve, reject ) => {
