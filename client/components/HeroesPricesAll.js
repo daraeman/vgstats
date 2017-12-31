@@ -27,7 +27,12 @@ export default class HeroesPricesAll extends React.Component {
 				roam: 0,
 				jungle: 0,
 			},
-			barGraphData: [],
+			classDistributionData: [],
+			classPriceData: {},
+			classPriceGraphDataGoldAverage: [],
+			classPriceGraphDataSilverAverage: [],
+			classPriceGraphDataGoldTotal: [],
+			classPriceGraphDataSilverTotal: [],
 		});
 	}
 
@@ -94,18 +99,82 @@ export default class HeroesPricesAll extends React.Component {
 
 		let classTotals = heroes.reduce( ( results, hero ) => {
 			results[ hero.class ]++;
+			results.all++;
 			return results;
-		}, { lane: 0, roam: 0, jungle: 0 } );
+		}, { lane: 0, roam: 0, jungle: 0, all: 0 } );
 
-		let barGraphData = [
-			{ item: "laners", value: classTotals.lane },
-			{ item: "roamers", value: classTotals.roam },
-			{ item: "junglers", value: classTotals.jungle },
+		let classDistributionData = [
+			{ item: "Laners", value: classTotals.lane },
+			{ item: "Roamers", value: classTotals.roam },
+			{ item: "Junglers", value: classTotals.jungle },
 		];
+
+		let classPriceData = heroes.reduce( ( results, hero ) => {
+			results.gold_total += parseInt( hero.gold ) || 0;
+			results.silver_total += parseInt( hero.silver ) || 0;
+			results[ hero.class ].gold_total += parseInt( hero.gold ) || 0;
+			results[ hero.class ].silver_total += parseInt( hero.silver ) || 0;
+			return results;
+		}, {
+			gold_total: 0,
+			silver_total: 0,
+			jungle: {
+				gold_total: 0,
+				silver_total: 0,
+			},
+			lane: {
+				gold_total: 0,
+				silver_total: 0,
+			},
+			roam: {
+				gold_total: 0,
+				silver_total: 0,
+			},
+		});
+
+		classPriceData.gold_average = Math.round( classPriceData.gold_total / classTotals.all ) || 0;
+		classPriceData.silver_average = Math.round( classPriceData.silver_total / classTotals.all ) || 0;
+
+		classPriceData.lane.gold_average = Math.round( classPriceData.lane.gold_total / classTotals.lane ) || 0;
+		classPriceData.lane.silver_average = Math.round( classPriceData.lane.silver_total / classTotals.lane ) || 0;
+
+		classPriceData.roam.gold_average = Math.round( classPriceData.roam.gold_total / classTotals.roam ) || 0;
+		classPriceData.roam.silver_average = Math.round( classPriceData.roam.silver_total / classTotals.roam ) || 0;
+
+		classPriceData.jungle.gold_average = Math.round( classPriceData.jungle.gold_total / classTotals.jungle ) || 0;
+		classPriceData.jungle.silver_average = Math.round( classPriceData.jungle.silver_total / classTotals.jungle ) || 0;
+
+		let classPriceGraphDataGoldAverage = [
+			{ item: "All", value: classPriceData.gold_average },
+			{ item: "Laners", value: classPriceData.lane.gold_average },
+			{ item: "Roamers", value: classPriceData.roam.gold_average },
+			{ item: "Junglers", value: classPriceData.jungle.gold_average },
+		];
+		let classPriceGraphDataSilverAverage = [
+			{ item: "All", value: classPriceData.silver_average },
+			{ item: "Laners", value: classPriceData.lane.silver_average },
+			{ item: "Roamers", value: classPriceData.roam.silver_average },
+			{ item: "Junglers", value: classPriceData.jungle.silver_average },
+		];
+		let classPriceGraphDataGoldTotal = [
+			{ item: "Laners", value: classPriceData.lane.gold_average },
+			{ item: "Roamers", value: classPriceData.roam.gold_average },
+			{ item: "Junglers", value: classPriceData.jungle.gold_average },
+		];
+		let classPriceGraphDataSilverTotal = [
+			{ item: "Laners", value: classPriceData.lane.silver_total },
+			{ item: "Roamers", value: classPriceData.roam.silver_total },
+			{ item: "Junglers", value: classPriceData.jungle.silver_total },
+		];	
 
 		this.setState({
 			classTotals: classTotals,
-			barGraphData: barGraphData,
+			classDistributionData: classDistributionData,
+			classPriceData: classPriceData,
+			classPriceGraphDataGoldAverage: classPriceGraphDataGoldAverage,
+			classPriceGraphDataSilverAverage: classPriceGraphDataSilverAverage,
+			classPriceGraphDataGoldTotal: classPriceGraphDataGoldTotal,
+			classPriceGraphDataSilverTotal: classPriceGraphDataSilverTotal,
 		});
 	}
 
@@ -159,7 +228,23 @@ export default class HeroesPricesAll extends React.Component {
 
 				<div class="header">Hero Class Distribution</div>
 
-				<BarGraph data={ this.state.barGraphData } id="graph_classes" name="classes" />
+				<BarGraph data={ this.state.classDistributionData } id="graph_class_distribution" name="graph_class_distribution" />
+
+				<div class="header">Hero Class Ice Average</div>
+
+				<BarGraph data={ this.state.classPriceGraphDataGoldAverage } id="graph_class_gold_average" name="graph_class_gold_average" />
+
+				<div class="header">Hero Class Glory Average</div>
+
+				<BarGraph data={ this.state.classPriceGraphDataSilverAverage } id="graph_class_silver_average" name="graph_class_silver_average" />
+
+				<div class="header">Hero Class Ice Total</div>
+
+				<BarGraph data={ this.state.classPriceGraphDataGoldTotal } id="graph_class_gold_total" name="graph_class_gold_total" />
+
+				<div class="header">Hero Class Glory Total</div>
+
+				<BarGraph data={ this.state.classPriceGraphDataSilverTotal } id="graph_class_silver_total" name="graph_class_silver_total" />
 
 				<div class="header">Hero Prices</div>
 

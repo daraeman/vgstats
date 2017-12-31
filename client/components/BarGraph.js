@@ -92,6 +92,8 @@ export default class BarGraph extends React.Component {
 
 		const { data } = this.props;
 
+		console.log( "data", data )
+
 		return (
 			<div class="container BarGraph" id={ this.state.id }></div>
 		)
