@@ -15,17 +15,16 @@ function createPath( hash ) {
 }
 
 const retrieve = function( image ) {
-	console.log( "ImageController.retrieve: ", image )
 	return new Promise( ( resolve, reject ) => {
 
-		request( image.url )
+		request( { url: image.url, encoding: "binary" } )
 			.then( ( body ) => {
 				let sha256 = crypto.createHash( "sha256" ).update( body ).digest( "hex" );
 				if ( image.sha256 === sha256 )
 					throw new PromiseBreakError( "Image not changed" );
 				image.sha256 = sha256;
 				image.previous.push( sha256 );
-				return fs.writeFile( createPath( sha256 ), body );
+				return fs.writeFile( createPath( sha256 ), body, "binary" );
 			})
 			.catch( ( error ) => {
 				if ( error instanceof PromiseBreakError )
@@ -65,15 +64,12 @@ const existsFile = function( hash ) {
 };
 
 const getOrCreate = function( type, name, url ) {
-	console.log( "ImageController.getOrCreate: ", type, name, url )
 	return new Promise( ( resolve, reject ) => {
 		existsDB( name )
 			.then( ( image ) => {
 				if ( ! image ) {
 
-					console.log( "url1: ", url )
 					url = ( url ) ? Utils.expandUrl( url ) : createUrl( type, name );
-					console.log( "url2: ", url )
 
 					return Image.create({
 						url: url,
