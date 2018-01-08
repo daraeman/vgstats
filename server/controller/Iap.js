@@ -39,61 +39,68 @@ const createStat = function( data, feed, date ) {
 	return new Promise( ( resolve, reject ) => {
 
 		let this_image;
+		let this_iap;
 		getOrCreate( data )
 			.then( ( iap ) => {
+				this_iap = iap;
+				if ( data.bgImg )
+					return ImageController.getOrCreate( "iap", data.bgImg );
+			})
+			.catch( ( error ) => {
+				throw error;
+			})
+			.then( ( image ) => {
 
-				return ImageController.getOrCreate( "iap", data.bgImg )
-					.then( ( image ) => {
+				if ( image )
+					this_image = image;
 
-						if ( ! image )
-							throw new Error( "Failed to getOrCreate image [%s]", data.image );
+				return IapStat.findOne({
+					iap: this_iap._id,
+					feed: feed._id,
+				}).sort({ date: "desc" });
 
-						this_image = image;
-
-						return IapStat.findOne({
-							iap: iap._id,
-							feed: feed._id,
-						}).sort({ date: "desc" });
-					})
-					.then( ( stat ) => {
-						// create stat if it doesn't exist,
-						// or if the values have changed (ignoring missing ),
-						// or if the stat was missing but is back
-						if (
-							! stat ||
-							stat.missing ||
-							(
-								(
-									stat.amount !== data.amount ||
-									stat.image.toString() !== this_image._id.toString() ||
-									stat.enabled !== data.enabled ||
-									stat.USD !== data.priceAnalyticsUSD ||
-									stat.CNY !== data.priceGiantCNY
-								) && ! stat.missing
-							)
-						) {
-							return IapStat.create({
-								iap: iap._id,
-								date: date,
-								amount: data.amount,
-								image: this_image._id,
-								enabled: data.enabled,
-								USD: data.priceAnalyticsUSD,
-								CNY: data.priceGiantCNY,
-								feed: feed._id,
-							});
-						}
-						else {
-							return stat;
-						}
-					})
-					.then( ( stat ) => {
-						return resolve( { category: "iap", stats: [ stat ] } );
+			})
+			.then( ( stat ) => {
+				// create stat if it doesn't exist,
+				// or if the values have changed (ignoring missing ),
+				// or if the stat was missing but is back
+				let image_check = ( ! stat ) ? false : ( this_image ) ? ( stat.image.toString() !== this_image._id.toString() ) : true;
+				if (
+					! stat ||
+					stat.missing ||
+					(
+						(
+							stat.amount !== data.amount ||
+							image_check ||
+							stat.enabled !== data.enabled ||
+							stat.USD !== data.priceAnalyticsUSD ||
+							stat.CNY !== data.priceGiantCNY
+						) && ! stat.missing
+					)
+				) {
+					let image_id = ( this_image ) ? this_image._id : null;
+					return IapStat.create({
+						iap: this_iap._id,
+						date: date,
+						amount: data.amount,
+						image: image_id,
+						enabled: data.enabled,
+						USD: data.priceAnalyticsUSD,
+						CNY: data.priceGiantCNY,
+						feed: feed._id,
 					});
+				}
+				else {
+					return stat;
+				}
+			})
+			.then( ( stat ) => {
+				return resolve( { category: "iap", stats: [ stat ] } );
 			})
 			.catch( ( error ) => {
 				return reject( error );
 			});
+
 	});
 };
 
