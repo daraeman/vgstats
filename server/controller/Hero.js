@@ -57,6 +57,7 @@ const getOrCreate = function( data ) {
 	return new Promise( ( resolve, reject) => {
 		
 		let placeholder = false;
+		let this_hero;
 		get( data )
 			.then( ( hero ) => {
 
@@ -78,7 +79,9 @@ const getOrCreate = function( data ) {
 
 				if ( ! hero )
 					throw new Error( "Hero not returned after creating" );
+				this_hero = hero;
 
+/*
 				ImageController.getOrCreate( "hero", data.image )
 					.then( ( image ) => {
 
@@ -92,41 +95,44 @@ const getOrCreate = function( data ) {
 
 						return VideoController.getOrCreate( data.video );
 					})
-					.then( ( video ) => {
+*/
+				return VideoController.getOrCreate( data.video );
+			})
+			.then( ( video ) => {
 
-						if ( video && video._id )
-							hero.video = video._id;
+				if ( video && video._id )
+					this_hero.video = video._id;
 
-						return hero.save();
-					})
-					.then( ( hero ) => {
+				return this_hero.save();
+			})
+			.then( ( hero ) => {
 
-						// if we previously had a placeholder hero,
-						// update the skins to the new hero
-						// and also delete the placeholder hero
-						if ( placeholder && ! hero.placeholder ) {
-							return Skin.find( { hero: placeholder._id })
-								.then( ( skins ) => {
-									if ( ! skins.length )
-										return resolve( hero );
-									else {
-										let jobs = [];
-										skins.forEach( ( skin ) => {
-											jobs.push( skin.update({ hero: hero._id }) );
-										});
-										Promise.all( jobs )
-											.then( () => {
-												return placeholder.remove();
-											})
-											.then( () => {
-												return resolve( hero );
-											});
-									}
+				// if we previously had a placeholder hero,
+				// update the skins to the new hero
+				// and also delete the placeholder hero
+				if ( placeholder && ! hero.placeholder ) {
+					return Skin.find( { hero: placeholder._id })
+						.then( ( skins ) => {
+							if ( ! skins.length )
+								return resolve( hero );
+							else {
+								let jobs = [];
+								skins.forEach( ( skin ) => {
+									jobs.push( skin.update({ hero: hero._id }) );
 								});
-						}
-
-						return resolve( hero );
-					});
+								Promise.all( jobs )
+									.then( () => {
+										return placeholder.remove();
+									})
+									.then( () => {
+										return resolve( hero );
+									});
+							}
+						});
+				}
+				else {
+					return resolve( hero );
+				}
 			})
 			.catch( ( error ) => {
 				return reject( error );
