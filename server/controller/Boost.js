@@ -58,7 +58,8 @@ const createStat = function( data, feed, date ) {
 						if ( ! duration_matches )
 							console.log( "+++++++++" + sku.id );
 						duration = duration_matches[1];
-						duration *= ( duration_matches[1] == "H" ) ? 60 : ( duration_matches[1] == "D" ) ? ( 60 * 24 ) : 1;
+						let interval = duration_matches[2]
+						duration *= ( interval === "H" ) ? 60 : ( interval === "D" ) ? ( 60 * 24 ) : 1;
 					}
 
 					Stat.findOne({
