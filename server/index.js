@@ -19,6 +19,11 @@ let apps = {
 		name: "web_server",
 		pidfile: base + "/pids/web_server.pid",
 	},
+	fetch_images: {
+		main: base + "/server/app/fetch_images.js",
+		name: "fetch_images",
+		pidfile: base + "/pids/fetch_images.pid",
+	},
 };
 
 Object.keys( apps ).forEach( ( name ) => {
